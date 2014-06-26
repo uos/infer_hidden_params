@@ -1,0 +1,484 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY local_path 'file:///home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob/ias_knowledge_base/owl/'>
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
+    <!ENTITY knowrob "http://ias.cs.tum.edu/kb/knowrob.owl#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY hidden_params "http://hidden_params.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://ias.cs.tum.edu/kb/comp_germandeli.owl#"
+     xml:base="http://ias.cs.tum.edu/kb/comp_germandeli.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:knowrob="http://ias.cs.tum.edu/kb/knowrob.owl#">
+
+    <owl:Ontology rdf:about="http://hidden_params.owl#">
+        <owl:imports rdf:resource="&local_path;knowrob.owl"/>
+    </owl:Ontology>
+
+ 
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:ObjectProperty rdf:about="&knowrob;additionalColorOfObject"/>
+
+    <owl:ObjectProperty rdf:about="&knowrob;hasTexture"/>
+
+    <owl:ObjectProperty rdf:about="&knowrob;ownedBy">
+        <rdfs:range rdf:resource="&knowrob;EmbodiedAgent"/>
+        <rdfs:domain rdf:resource="&knowrob;SpatialThing"/>
+    </owl:ObjectProperty>
+
+    <!-- betweenContainers for doors (containsPortals) -->
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes: Actions 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:Class rdf:about="&knowrob;FillingProcess">
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                        <owl:someValuesFrom rdf:resource="&knowrob;FoodVessel"/> <!-- to include CookingVessel -->
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&knowrob;toLocation"/>
+                        <owl:someValuesFrom rdf:resource="&knowrob;FoodVessel"/> <!-- to include CookingVessel -->
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;CuttingOffAPiece">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;SpatialThing-Localized"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;OpeningADoor"> 
+        <rdfs:subClassOf rdf:resource="&knowrob;OpeningSomething"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Door"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;EnteringARoom">
+        <rdfs:subClassOf rdf:resource="&knowrob;Walking-Generic"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;subAction"/>
+                <owl:hasValue rdf:resource="&knowrob;OpeningADoor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes: Vision Based Object Description 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- Additional Colors -->
+
+    <owl:Class rdf:about="&knowrob;GoldenColor">
+        <rdfs:subClassOf rdf:resource="&knowrob;ColoredThing"/>
+    </owl:Class>
+
+
+    <!-- Textures -->
+
+    <owl:Class rdf:about="&knowrob;Texture">
+        <rdfs:subClassOf rdf:resource="&knowrob;VisibleThing"/>
+        <rdfs:comment rdf:datatype="&xsd;string">Object surfaces can often be described in terms of visible textures such as 'checked' or 'dotted'.</rdfs:comment> 
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Checked">
+        <rdfs:subClassOf rdf:resource="&knowrob;Texture"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Dotted">
+        <rdfs:subClassOf rdf:resource="&knowrob;Texture"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;HasHoles">
+        <rdfs:subClassOf rdf:resource="&knowrob;Texture"/>
+    </owl:Class>
+
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes: Drink Example
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- Glas and TetraPak -->
+
+    <owl:Class rdf:about="&knowrob;DrinkingGlass">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Drink"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;FoodOrDrink"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Apple Juice and corresponding Containers -->
+
+    <owl:Class rdf:about="&knowrob;Apple_Juice">
+        <rdfs:subClassOf rdf:resource="&knowrob;Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;GoldenColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Apple_Juice_TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;TetraPak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Apple_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Apple_Juice_Bottle">
+        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Apple_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Orange Juice and corresponding Containers -->
+
+    <owl:Class rdf:about="&knowrob;Orange_Juice">
+        <rdfs:subClassOf rdf:resource="&knowrob;Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Orange_Juice_TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;TetraPak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Orange_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Orange_Juice_Bottle">
+        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Orange_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Mango Juice and corresponding Containers -->
+
+    <owl:Class rdf:about="&knowrob;Mango_Juice">
+        <rdfs:subClassOf rdf:resource="&knowrob;Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Mango_Juice_TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;TetraPak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Mango_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Mango_Juice_Bottle">
+        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Mango_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Cherry Juice and corresponding Containers -->
+
+    <owl:Class rdf:about="&knowrob;Cherry_Juice">
+        <rdfs:subClassOf rdf:resource="&knowrob;Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;RedColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Cherry_Juice_TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;TetraPak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Cherry_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Cherry_Juice_Bottle">
+        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Cherry_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Cranberry Juice and corresponding Containers -->
+
+    <owl:Class rdf:about="&knowrob;Cranberry_Juice">
+        <rdfs:subClassOf rdf:resource="&knowrob;Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;RedColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Cranberry_Juice_TetraPak">
+        <rdfs:subClassOf rdf:resource="&knowrob;TetraPak"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Cranberry_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;Cranberry_Juice_Bottle">
+        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;contains"/>
+                <owl:hasValue rdf:resource="&knowrob;Cranberry_Juice"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes: Cheese Example
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- Gouda, gelb -->
+
+    <owl:Class rdf:about="&knowrob;Gouda">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Gouda with Herbs -->
+
+    <owl:Class rdf:about="&knowrob;GoudaWithHerbs">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;additionalColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;GreenColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;hasTexture"/>
+                <owl:hasValue rdf:resource="&knowrob;Dotted"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Gouda with Pepper -->
+
+    <owl:Class rdf:about="&knowrob;GoudaWithPepper">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;additionalColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;GreenColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;hasTexture"/>
+                <owl:hasValue rdf:resource="&knowrob;Dotted"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Edamer, gelb -->
+
+    <owl:Class rdf:about="&knowrob;Edamer">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Emmentaler, gelb, Löcher -->
+
+    <owl:Class rdf:about="&knowrob;Emmentaler">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;hasTexture"/>
+                <owl:hasValue rdf:resource="&knowrob;HasHoles"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- Leerdammer, gelb, Löcher -->
+
+    <owl:Class rdf:about="&knowrob;Leerdammer">
+        <rdfs:subClassOf rdf:resource="&knowrob;Cheese"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;mainColorOfObject"/>
+                <owl:hasValue rdf:resource="&knowrob;YellowColor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;hasTexture"/>
+                <owl:hasValue rdf:resource="&knowrob;HasHoles"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes: Room Example 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+    
+    <owl:Class rdf:about="&knowrob;OfficeRoom">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;ownedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- Portals have an intendedCovering and are connected to rooms via betweenContainers
+         rooms are connectedTo a intendedCovering (Door) -->
+
+</rdf:RDF>
+
+

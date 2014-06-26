@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri id="User Entered Import Resolution" name="file:///home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob_own/infer_hidden_params/owl/knowrob.owl" uri="file:/home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob/ias_knowledge_base/owl/knowrob.owl"/>
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1403679817069" name="duplicate:http://ias.cs.tum.edu/kb/ccrl2_semantic_map.owl" uri="door_map.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1403679817069" name="duplicate:http://ias.cs.tum.edu/kb/ccrl2_semantic_map.owl" uri="cheese_world.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1403679817069" name="http://ias.cs.tum.edu/kb/comp_germandeli.owl" uri="hidden_params.owl"/>
+    </group>
+</catalog>

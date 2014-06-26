@@ -1,0 +1,17 @@
+<package>
+  <description brief="infer_hidden_params">
+
+     infer_hidden_params
+
+  </description>
+  <author>ahaeuser</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/infer_hidden_params</url>
+
+  <depend package="ias_knowledge_base"/>
+  <depend package="json_prolog"/>
+
+</package>
+
+

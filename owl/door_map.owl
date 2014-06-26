@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY local_path 'file:///home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob/ias_knowledge_base/owl/'>
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY owl2 "http://www.w3.org/2006/12/owl2#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
+    <!ENTITY knowrob "http://ias.cs.tum.edu/kb/knowrob.owl#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY ias_map "http://ias.cs.tum.edu/kb/ias_semantic_map.owl#" >
+    <!ENTITY protege "http://protege.stanford.edu/plugins/owl/protege#" >
+    <!ENTITY door_map "http://infer_hidden_params/door_map.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://ias.cs.tum.edu/kb/ccrl2_semantic_map.owl#"
+     xml:base="http://ias.cs.tum.edu/kb/ccrl2_semantic_map.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:knowrob="http://ias.cs.tum.edu/kb/knowrob.owl#"
+     xmlns:door_map="http://infer_hidden_params/door_map.owl#">
+    <owl:Ontology rdf:about="http://door_map.owl#">
+      <owl:imports rdf:resource="&local_path;knowrob.owl"/>
+      <owl:imports rdf:resource="file:///home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob_own/infer_hidden_params/owl/hidden_params.owl"/>
+    </owl:Ontology>
+
+
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals: Actions
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#OpeningADoor1">
+        <rdf:type rdf:resource="&knowrob;OpeningADoor"/>
+        <knowrob:objectActedOn rdf:resource="http://infer_hidden_params/door_map.owl#Door1"/>
+        <knowrob:startTime rdf:resource="http://infer_hidden_params/door_map.owl#timepoint_1298634588"/>
+    </owl:NamedIndividual>
+
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0">
+        <rdf:type rdf:resource="&knowrob;SemanticEnvironmentMap"/>
+    </owl:NamedIndividual>
+
+    <!-- Rooms -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#OfficeRoom1">
+        <rdf:type rdf:resource="&knowrob;OfficeRoom"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+        <knowrob:ownedBy rdf:resource="http://infer_hidden_params/door_map.owl#Martin"/>
+        <knowrob:containsPortal rdf:resource="http://infer_hidden_params/door_map.owl#Portal1"/>
+    <!--    <knowrob:connectedTo rdf:resource="http://infer_hidden_params/door_map.owl#Door1"/> -->
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#StudyRoom1">
+        <rdf:type rdf:resource="&knowrob;StudyRoom"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+        <knowrob:containsPortal rdf:resource="http://infer_hidden_params/door_map.owl#Portal2"/>
+    <!--    <knowrob:connectedTo rdf:resource="http://infer_hidden_params/door_map.owl#Door2"/> -->
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Hall1">
+        <rdf:type rdf:resource="&knowrob;Hall"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+        <knowrob:containsPortal rdf:resource="http://infer_hidden_params/door_map.owl#Portal1"/>
+        <knowrob:containsPortal rdf:resource="http://infer_hidden_params/door_map.owl#Portal2"/>
+    <!--    <knowrob:connectedTo rdf:resource="http://infer_hidden_params/door_map.owl#Door1"/> -->
+    <!--    <knowrob:connectedTo rdf:resource="http://infer_hidden_params/door_map.owl#Door2"/> -->
+    </owl:NamedIndividual>
+
+    <!-- Doors (and Portals) -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Door1">
+        <rdf:type rdf:resource="&knowrob;Door"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+        <knowrob:stateOfObject rdf:resource="&knowrob;ObjectStateClosed"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Door2">
+        <rdf:type rdf:resource="&knowrob;Door"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+        <knowrob:stateOfObject rdf:resource="&knowrob;ObjectStateClosed"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Portal1">
+        <rdf:type rdf:resource="&knowrob;Portal"/>
+        <knowrob:intendedCovering rdf:resource="http://infer_hidden_params/door_map.owl#Door1"/>
+        <knowrob:betweenContainers rdf:resource="http://infer_hidden_params/door_map.owl#OfficeRoom1"/>
+        <knowrob:betweenContainers rdf:resource="http://infer_hidden_params/door_map.owl#Hall1"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Portal2">
+        <rdf:type rdf:resource="&knowrob;Portal"/>
+        <knowrob:intendedCovering rdf:resource="http://infer_hidden_params/door_map.owl#Door2"/>
+        <knowrob:betweenContainers rdf:resource="http://infer_hidden_params/door_map.owl#StudyRoom1"/>
+        <knowrob:betweenContainers rdf:resource="http://infer_hidden_params/door_map.owl#Hall1"/>
+        <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
+    </owl:NamedIndividual>
+
+
+    <!-- Persons -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Martin">
+        <rdf:type rdf:resource="&knowrob;Person"/>
+    </owl:NamedIndividual>
+
+
+    <!--
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals: TimePoints 
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/cheese_world.owl#timepoint_1298634688">
+        <rdf:type rdf:resource="&knowrob;TimePoint"/>
+    </owl:NamedIndividual>
+
+
+</rdf:RDF>
