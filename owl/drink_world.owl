@@ -48,6 +48,12 @@
         <knowrob:startTime rdf:resource="http://infer_hidden_params/drink_world.owl#timepoint_1298634633"/>
     </owl:NamedIndividual>
 
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#FillingProcess2">
+        <rdf:type rdf:resource="&knowrob;FillingProcess"/>
+        <knowrob:objectActedOn rdf:resource="http://infer_hidden_params/drink_world.owl#TetraPak1"/>
+        <knowrob:toLocation rdf:resource="http://infer_hidden_params/drink_world.owl#DrinkingGlass1"/>
+        <knowrob:startTime rdf:resource="http://infer_hidden_params/drink_world.owl#timepoint_1298634633"/>
+    </owl:NamedIndividual>
 
     <!--
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +76,18 @@
         <rdf:type rdf:resource="&knowrob;Orange_Juice_TetraPak"/>
     </owl:NamedIndividual>
 
+
+    <!-- TetraPak filled with General Drink -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#TetraPak1">
+        <rdf:type rdf:resource="&knowrob;TetraPak"/>
+        <knowrob:contains rdf:resource="http://infer_hidden_params/drink_world.owl#Drink1"/>
+    </owl:NamedIndividual>
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#Drink1">
+        <rdf:type rdf:resource="&knowrob;Drink"/>
+        <knowrob:mainColorOfObject rdf:resource="&knowrob;RedColor"/>
+    </owl:NamedIndividual>
 
     <!--
     ///////////////////////////////////////////////////////////////////////////////////////
