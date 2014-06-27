@@ -36,13 +36,12 @@ project_action_effects(Action) :-
   owl_has(Action, knowrob:toLocation, TargetVessel),
   owl_has(SourceVessel, knowrob:contains, SourceContent),
   ((owl_has(SourceContent, rdf:type, 'http://www.w3.org/2002/07/owl#Class'), SourceType=SourceContent);
-    owl_has(SourceContent, rdf:type, SourceType)),
-  print('SourceVessel: '), print(SourceVessel), print(' TargetVessel: '), print(TargetVessel), print('\n'),
-  print('SourceContent: '), print(SourceContent), print(' SourceType: '), print(SourceType), print('\n'),
+    (owl_has(SourceContent, rdf:type, SourceType), dif(SourceType, 'http://www.w3.org/2002/07/owl#NamedIndividual'))),
   \+ (owl_has(TargetVessel, knowrob:'contains', TargetContent), owl_has(TargetContent, rdf:type, SourceType)),!,
 
   % new objects
   rdf_instance_from_class(SourceType, knowrob_projection, NewContent),
+  % TODO: copy properties
 
   % remove previous content relations
   remove_object_prop(TargetVessel, knowrob:contains, _),
