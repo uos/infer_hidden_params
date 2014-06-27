@@ -1,7 +1,10 @@
 
 :- module(action_effects_ext,
     [
-      project_action_effects2/1
+      project_action_effects2/1,
+      find_causing_action/4
+%     find_causing_action/3,
+%     find_causing_action/1
     ]).
 
 :- use_module(library('action_effects')).
@@ -11,12 +14,15 @@
 :- use_module(library('knowrob_owl')).
 
 :- rdf_db:rdf_register_ns(knowrob, 'http://ias.cs.tum.edu/kb/knowrob.owl#', [keep(true)]).
-:- rdf_db:rdf_register_ns(drink_world, 'http://infer_hidden_params/drink_world.owl#', [keep(true)]).
-:- rdf_db:rdf_register_ns(door_map, 'http://infer_hidden_params/door_map.owl#', [keep(true)]).
+:- rdf_db:rdf_register_ns(rdfs, 'http://www.w3.org/2000/01/rdf-schema#', [keep(true)]).
+:- rdf_db:rdf_register_ns(owl, 'http://www.w3.org/2002/07/owl#', [keep(true)]).
 
 :- rdf_meta
     project_action_effects2(r),
-    remove_object_prop(r,r,r).
+    remove_object_prop(r,r,r),
+    find_causing_action(r,r,r,r).
+%   find_causing_action(r,r,r),
+%   find_causing_action(r).
 
 
 % remove all assertions of sub-properties of Property with Value from Obj
@@ -119,11 +125,25 @@ project_action_effects2(Action) :-
 % % % % % % % % % % % % % % % % % % % %
 
 % State Change Actions
-% find_causing_action(Obj, Prop, FromValue, ToValue) :-
+find_causing_action(Obj, Prop, FromValue, ToValue) :-
 
-% findall(Action,
-%   (owl_has(Action, rdfs:SubClassOf, Temp), owl_has(Temp, owl:onProperty, knowrob:'ObjectActedOn'),
-%   owl_has(Temp, owl:someValuesFrom, ObjActOnType), individual_of_subtype(Obj, ObjActOnType)), Actions).
+  setof(Action, Descr^ObjActOnType^(
+    % find all Actions that may feature Obj as an objectActedOn
+    owl_has(Action, rdfs:subClassOf, Descr),
+    owl_has(Descr, owl:onProperty, knowrob:'objectActedOn'),
+    owl_has(Descr, owl:someValuesFrom, ObjActOnType),
+    owl_individual_of(Obj, ObjActOnType),!,
+    % create action with Obj as objectActedOn
+    rdf_instance_from_class(Action, knowrob_projection, AcInst),
+    rdf_assert(AcInst, knowrob:'objectActedOn', Obj, knowrob_projection),
+    print(AcInst),
+    % project action effects
+    project_action_effects(Action),
+    % check wether postActors match
+    owl_has(Obj, Prop, ToValue)
+    ),Actions),
+
+  print(Actions),print(Prop), print(FromValue), print(ToValue).
 
 % Adding something new to an object/container/etc.
 %find_causing_action(Obj, Prop, ToValue) :-
