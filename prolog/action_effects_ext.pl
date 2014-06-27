@@ -1,10 +1,10 @@
 
 :- module(action_effects_ext,
     [
-      project_action_effects/1
+      project_action_effects2/1
     ]).
 
-% :- use_module(library('action_effects')).
+:- use_module(library('action_effects')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -15,7 +15,7 @@
 :- rdf_db:rdf_register_ns(door_map, 'http://infer_hidden_params/door_map.owl#', [keep(true)]).
 
 :- rdf_meta
-    project_action_effects(r),
+    project_action_effects2(r),
     remove_object_prop(r,r,r).
 
 
@@ -28,7 +28,7 @@ remove_object_prop(Obj, Property, Value) :-
 
 % % % % % % % % % % % % % % % % % % % %
 % Filling Process
-project_action_effects(Action) :-
+project_action_effects2(Action) :-
 
   owl_individual_of(Action, knowrob:'FillingProcess'),
 
@@ -60,7 +60,7 @@ project_action_effects(Action) :-
 
 % % % % % % % % % % % % % % % % % % % %
 % Cutting off a piece (see also: knowrob_actions/prolog/action_effects.pl)
-project_action_effects(Action) :-
+project_action_effects2(Action) :-
 
   owl_individual_of(Action, knowrob:'CuttingOffAPiece'),
   \+ owl_has(Action, knowrob:outputsCreated, _),
@@ -86,7 +86,7 @@ project_action_effects(Action) :-
     
 % % % % % % % % % % % % % % % % % % % %
 % Opening a Door 
-project_action_effects(Action) :-
+project_action_effects2(Action) :-
 
   owl_individual_of(Action, knowrob:'OpeningADoor'),
 
@@ -118,12 +118,12 @@ project_action_effects(Action) :-
 %
 % % % % % % % % % % % % % % % % % % % %
 
-% State Change
-%find_causing_action(Obj, Prop, FromValue, ToValue) :-
+% State Change Actions
+% find_causing_action(Obj, Prop, FromValue, ToValue) :-
 
-%  findall(Action,
-%    (owl_has(Action, rdfs:SubClassOf, Temp), owl_has(Temp, owl:onProperty, knowrob:'ObjectActedOn'),
-%    owl_has(Temp, owl:someValuesFrom, ObjActOnType), individual_of_subtype(Obj, ObjActOnType)), Actions).
+% findall(Action,
+%   (owl_has(Action, rdfs:SubClassOf, Temp), owl_has(Temp, owl:onProperty, knowrob:'ObjectActedOn'),
+%   owl_has(Temp, owl:someValuesFrom, ObjActOnType), individual_of_subtype(Obj, ObjActOnType)), Actions).
 
 % Adding something new to an object/container/etc.
 %find_causing_action(Obj, Prop, ToValue) :-
@@ -134,9 +134,9 @@ project_action_effects(Action) :-
    
 
 % true if Indv is an individual of ObjType or one of the subClasses of ObjType
-individual_of_subtype(Indv, ObjType) :-
-  owl_individual_of(Indv, ObjType);
-  owl_subclass_of(SubObjType, ObjType), owl_individual_of(Indv, SubObjType).
+%individual_of_subtype(Indv, ObjType) :-
+% owl_individual_of(Indv, ObjType);
+% owl_subclass_of(SubObjType, ObjType), owl_individual_of(Indv, SubObjType).
 
 
 
