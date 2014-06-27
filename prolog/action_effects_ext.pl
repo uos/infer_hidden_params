@@ -1,13 +1,13 @@
 
 :- module(action_effects_ext,
     [
-      project_action_effects2/1,
+      project_action_effects/1,
       find_causing_action/4
 %     find_causing_action/3,
 %     find_causing_action/1
     ]).
 
-:- use_module(library('action_effects')).
+% :- use_module(library('action_effects')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -18,7 +18,7 @@
 :- rdf_db:rdf_register_ns(owl, 'http://www.w3.org/2002/07/owl#', [keep(true)]).
 
 :- rdf_meta
-    project_action_effects2(r),
+    project_action_effects(r),
     remove_object_prop(r,r,r),
     find_causing_action(r,r,r,r).
 %   find_causing_action(r,r,r),
@@ -34,7 +34,7 @@ remove_object_prop(Obj, Property, Value) :-
 
 % % % % % % % % % % % % % % % % % % % %
 % Filling Process
-project_action_effects2(Action) :-
+project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'FillingProcess'),
 
@@ -66,7 +66,7 @@ project_action_effects2(Action) :-
 
 % % % % % % % % % % % % % % % % % % % %
 % Cutting off a piece (see also: knowrob_actions/prolog/action_effects.pl)
-project_action_effects2(Action) :-
+project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'CuttingOffAPiece'),
   \+ owl_has(Action, knowrob:outputsCreated, _),
@@ -92,7 +92,7 @@ project_action_effects2(Action) :-
     
 % % % % % % % % % % % % % % % % % % % %
 % Opening a Door 
-project_action_effects2(Action) :-
+project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'OpeningADoor'),
 
@@ -145,6 +145,13 @@ find_causing_action(Obj, Prop, FromValue, ToValue) :-
 
   print(Actions),print(Prop), print(FromValue), print(ToValue).
 
+% State Change
+%find_causing_action(Obj, Prop, FromValue, ToValue) :-
+
+%  findall(Action,
+%    (owl_has(Action, rdfs:SubClassOf, Temp), owl_has(Temp, owl:onProperty, knowrob:'ObjectActedOn'),
+%    owl_has(Temp, owl:someValuesFrom, ObjActOnType), individual_of_subtype(Obj, ObjActOnType)), Actions).
+
 % Adding something new to an object/container/etc.
 %find_causing_action(Obj, Prop, ToValue) :-
 
@@ -152,11 +159,4 @@ find_causing_action(Obj, Prop, FromValue, ToValue) :-
 % Creating something new
 %find_causing_action(Obj) :-
    
-
-% true if Indv is an individual of ObjType or one of the subClasses of ObjType
-%individual_of_subtype(Indv, ObjType) :-
-% owl_individual_of(Indv, ObjType);
-% owl_subclass_of(SubObjType, ObjType), owl_individual_of(Indv, SubObjType).
-
-
 
