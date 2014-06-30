@@ -5,6 +5,7 @@
 :- register_ros_package(infer_hidden_params).
 
 :- use_module(library('action_effects_ext')).
+:- use_module(library('find_cause_of_change')).
 :- use_module(library('create_individual')).
 
 

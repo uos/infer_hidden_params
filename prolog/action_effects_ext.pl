@@ -1,10 +1,7 @@
 
 :- module(action_effects_ext,
     [
-      project_action_effects/1,
-      find_causing_action/4
-%     find_causing_action/3,
-%     find_causing_action/1
+      project_action_effects/1
     ]).
 
 % :- use_module(library('action_effects')).
@@ -19,13 +16,11 @@
 
 :- rdf_meta
     project_action_effects(r),
-    remove_object_prop(r,r,r),
-    find_causing_action(r,r,r,r).
-%   find_causing_action(r,r,r),
-%   find_causing_action(r).
+    remove_object_prop(r,r,r).
 
 
 % remove all assertions of sub-properties of Property with Value from Obj
+% (see also: knowrob_actions/prolog/action_effects.pl)
 remove_object_prop(Obj, Property, Value) :-
 (findall(Prop, (rdfs_subproperty_of(Prop, Property)), Props),
   findall(P, (member(P,Props), rdf_retractall(Obj, P, Value)), _)),!.
@@ -40,7 +35,7 @@ project_action_effects(Action) :-
 
   owl_has(Action, knowrob:objectActedOn, SourceVessel),
   owl_has(Action, knowrob:toLocation, TargetVessel),
-  owl_has(SourceVessel, knowrob:contains, SourceContent),
+  owl_has(SourceVessel, knowrob:'contains', SourceContent),
   ((owl_has(SourceContent, rdf:type, 'http://www.w3.org/2002/07/owl#Class'), SourceType=SourceContent);
     (owl_has(SourceContent, rdf:type, SourceType), dif(SourceType, 'http://www.w3.org/2002/07/owl#NamedIndividual'))),
   \+ (owl_has(TargetVessel, knowrob:'contains', TargetContent), owl_has(TargetContent, rdf:type, SourceType)),!,
@@ -116,47 +111,4 @@ project_action_effects(Action) :-
 % Entering a Room 
 
 
-
-
-% % % % % % % % % % % % % % % % % % % % 
-%
-% Querying missing Actions
-%
-% % % % % % % % % % % % % % % % % % % %
-
-% State Change Actions
-find_causing_action(Obj, Prop, FromValue, ToValue) :-
-
-  setof(Action, Descr^ObjActOnType^(
-    % find all Actions that may feature Obj as an objectActedOn
-    owl_has(Action, rdfs:subClassOf, Descr),
-    owl_has(Descr, owl:onProperty, knowrob:'objectActedOn'),
-    owl_has(Descr, owl:someValuesFrom, ObjActOnType),
-    owl_individual_of(Obj, ObjActOnType),!,
-    % create action with Obj as objectActedOn
-    rdf_instance_from_class(Action, knowrob_projection, AcInst),
-    rdf_assert(AcInst, knowrob:'objectActedOn', Obj, knowrob_projection),
-    print(AcInst),
-    % project action effects
-    project_action_effects(Action),
-    % check wether postActors match
-    owl_has(Obj, Prop, ToValue)
-    ),Actions),
-
-  print(Actions),print(Prop), print(FromValue), print(ToValue).
-
-% State Change
-%find_causing_action(Obj, Prop, FromValue, ToValue) :-
-
-%  findall(Action,
-%    (owl_has(Action, rdfs:SubClassOf, Temp), owl_has(Temp, owl:onProperty, knowrob:'ObjectActedOn'),
-%    owl_has(Temp, owl:someValuesFrom, ObjActOnType), individual_of_subtype(Obj, ObjActOnType)), Actions).
-
-% Adding something new to an object/container/etc.
-%find_causing_action(Obj, Prop, ToValue) :-
-
-
-% Creating something new
-%find_causing_action(Obj) :-
-   
 
