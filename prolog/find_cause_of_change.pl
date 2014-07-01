@@ -7,6 +7,7 @@
     ]).
 
 :- use_module(library('action_effects_ext')).
+:- use_module(library('action_effects')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -43,7 +44,8 @@ actionset_objectActedOn(Obj, ActionSet) :-
     owl_has(Action, rdfs:subClassOf, Descr),
     owl_has(Descr, owl:onProperty, knowrob:'objectActedOn'),
     owl_has(Descr, owl:someValuesFrom, ObjActOnType),
-    owl_individual_of(Obj, ObjActOnType)), ActionSet).
+    owl_individual_of(Obj, ObjActOnType)), ActionSet),
+    print(ActionSet).
 % TODO: extend to collection 
 
 
@@ -107,8 +109,21 @@ test_projection(Action, Obj, Prop, FromValue, ToValue) :-
 
 
 
-% Adding something new to an object/container/etc.
-%find_causing_action(Obj, Prop, ToValue) :-
+%% find_causing_action: Adding something new to an object/container/etc.
+%
+% The Object Instance is known, but a new property was added to it
+% (something was put onto/into the object, temperature was changed)
+%
+% probably: combine with find_causing_action for State Change Actions with unknown FromValue
+%
+% TODO: Description
+%
+% @param Obj        Known object which undergoes some change
+% @param Prop       Property that changes
+% @param ToValue    New property value
+% @param ResultSet  Set of known actions which are able to induce this change
+
+% find_causing_action(Obj, Prop, ToValue, ResultSet) :-
 
 
 % Creating something new

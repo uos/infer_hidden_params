@@ -1,10 +1,12 @@
 
 :- module(action_effects_ext,
     [
-      project_action_effects/1
+      action_effects:project_action_effects/1
     ]).
 
-% :- use_module(library('action_effects')).
+:- multifile(action_effects:project_action_effects/1).
+
+:- use_module(library('action_effects')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -26,10 +28,9 @@ remove_object_prop(Obj, Property, Value) :-
   findall(P, (member(P,Props), rdf_retractall(Obj, P, Value)), _)),!.
 
 
-
 % % % % % % % % % % % % % % % % % % % %
 % Filling Process
-project_action_effects(Action) :-
+action_effects:project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'FillingProcess'),
 
@@ -61,7 +62,7 @@ project_action_effects(Action) :-
 
 % % % % % % % % % % % % % % % % % % % %
 % Cutting off a piece (see also: knowrob_actions/prolog/action_effects.pl)
-project_action_effects(Action) :-
+action_effects:project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'CuttingOffAPiece'),
   \+ owl_has(Action, knowrob:outputsCreated, _),
@@ -87,7 +88,7 @@ project_action_effects(Action) :-
     
 % % % % % % % % % % % % % % % % % % % %
 % Opening a Door 
-project_action_effects(Action) :-
+action_effects:project_action_effects(Action) :-
 
   owl_individual_of(Action, knowrob:'OpeningADoor'),
 

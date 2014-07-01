@@ -23,6 +23,7 @@
 
     <owl:Ontology rdf:about="http://hidden_params.owl#">
         <owl:imports rdf:resource="&local_path;knowrob.owl"/>
+        <owl:imports rdf:resource="file:///home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob/knowrob_actions/owl/pancake-making.owl"/>
     </owl:Ontology>
 
  
