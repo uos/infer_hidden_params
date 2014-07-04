@@ -1,0 +1,10 @@
+find_causing_action(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
+
+
+create_individual(knowrob:'PancakeMaker').
+actionset_toLocation(knowrob:'PancakeMaker_qdaDeDZn', A).
+
+actionset_toLocation(knowrob:'DrinkingGlass1', A).
+
+owl_has(drink_world:'Drink1', rdf:type, O), (O\='http://www.w3.org/2002/07/owl#NamedIndividual').
+
