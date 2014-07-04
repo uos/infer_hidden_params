@@ -8,6 +8,7 @@
 
 :- use_module(library('action_effects_ext')).
 :- use_module(library('action_effects')).
+% :- use_module(library('knowrob_actions')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -23,7 +24,10 @@
 %   find_causing_action(r).
     actionset_success(r,r,r,r,r,r),
     actionset_objectActedOn(r,r),
-    test_projection(r,r,r,r,r).
+    actionset_toLocation(r,r),
+    actionset_fromLocation(r,r),
+    test_projection(r,r,r,r,r),
+    action_objectActedOn(r,r).
 
 
 
@@ -31,22 +35,83 @@
 %
 % remove all triples and object instances
 % that have been asserted as part of the projection methods
-%
 clean_projection_cache :-
   rdf_retractall(_, _, _, knowrob_projection),
   rdf_retractall(_, knowrob_projection, _).
 
 
-% finds all action descriptions, that may feature Obj as an objectActedOn
-% TODO: PropertyType as variable
-actionset_objectActedOn(Obj, ActionSet) :-
-  setof(Action, Descr^ObjActOnType^(
-    owl_has(Action, rdfs:subClassOf, Descr),
-    owl_has(Descr, owl:onProperty, knowrob:'objectActedOn'),
-    owl_has(Descr, owl:someValuesFrom, ObjActOnType),
-    owl_individual_of(Obj, ObjActOnType)), ActionSet),
-    print(ActionSet).
-% TODO: extend to collection 
+
+%% actionset_objectActedOn
+%
+% finds all action descriptions,
+% that may feature ObjInst as an objectActedOn
+actionset_objectActedOn(ObjInst, ActionSet) :-
+  setof(Action, ObjActOnType^(
+    owl_individual_of(ObjInst, ObjActOnType),
+    action_objectActedOn(Action, ObjActOnType)), ActionSet).
+
+%% action_objectActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%
+% checks if the TBOX description of Action includes Object as an objectActedOn
+action_objectActedOn(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_direct_subclass_of(Sup, Sup2),
+        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+action_objectActedOn(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+
+
+
+%% actionset_toLocation
+%
+% finds all action descriptions,
+% that may feature ObjInst as a toLocation
+actionset_toLocation(ObjInst, Location) :-
+  setof(Action, ObjType^(
+    owl_individual_of(ObjInst, ObjType),
+    action_toLocation(Action, ObjType)), ActionSet).
+
+%% action_toLocation (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%
+% checks if the TBOX description of Action includes Object as a toLocation
+action_toLocation(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_direct_subclass_of(Sup, Sup2),
+        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
+action_toLocation(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
+
+
+
+%% actionset_fromLocation
+%
+% finds all action descriptions,
+% that may feature ObjInst as a fromLocation
+actionset_fromLocation(ObjInst, Location) :-
+  setof(Action, ObjType^(
+    owl_individual_of(ObjInst, ObjType),
+    action_fromLocation(Action, ObjType)), ActionSet).
+
+%% action_fromLocation (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%
+% checks if the TBOX description of Action includes Object as a fromLocation
+action_fromLocation(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_direct_subclass_of(Sup, Sup2),
+        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
+action_fromLocation(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Event'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
+
+
 
 
 

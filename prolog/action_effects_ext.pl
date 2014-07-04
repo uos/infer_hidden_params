@@ -87,24 +87,25 @@ action_effects:project_action_effects(Action) :-
 
     
 % % % % % % % % % % % % % % % % % % % %
-% Opening a Door 
-action_effects:project_action_effects(Action) :-
+% Opening Door
+% TODO: extend to opening an office Door 
+%action_effects:project_action_effects(Action) :-
 
-  owl_individual_of(Action, knowrob:'OpeningADoor'),
+%  owl_individual_of(Action, knowrob:'OpeningADoor'),
 
-  owl_has(Action, knowrob:objectActedOn, Obj),
-  \+ owl_has(Obj, knowrob:stateOfObject, knowrob:'ObjectStateOpen'),!,
+%  owl_has(Action, knowrob:objectActedOn, Obj),
+%  \+ owl_has(Obj, knowrob:stateOfObject, knowrob:'ObjectStateOpen'),!,
 
   % remove asserted stateOfObject
-  remove_object_prop(Obj, knowrob:stateOfObject, knowrob:'ObjectStateClosed'),
+%  remove_object_prop(Obj, knowrob:stateOfObject, knowrob:'ObjectStateClosed'),
   % new relations
-  rdf_assert(Obj, knowrob:'stateOfObject', knowrob:'ObjectStateOpen', knowrob_projection),
+%  rdf_assert(Obj, knowrob:'stateOfObject', knowrob:'ObjectStateOpen', knowrob_projection),
 
-  rdf_assert(Action, knowrob:'objectOfStateChange', Obj, knowrob_projection),
-  rdf_assert(Action, knowrob:'fromState', knowrob:'ObjectStateClosed', knowrob_projection),
-  rdf_assert(Action, knowrob:'toState',   knowrob:'ObjectStateOpen', knowrob_projection),
+%  rdf_assert(Action, knowrob:'objectOfStateChange', Obj, knowrob_projection),
+%  rdf_assert(Action, knowrob:'fromState', knowrob:'ObjectStateClosed', knowrob_projection),
+%  rdf_assert(Action, knowrob:'toState',   knowrob:'ObjectStateOpen', knowrob_projection),
 
-  print(Obj),print(' opened'), print('\n').
+%  print(Obj),print(' opened'), print('\n').
 
 
 

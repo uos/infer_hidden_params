@@ -82,7 +82,6 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;OpeningADoor"> 
-        <rdfs:subClassOf rdf:resource="&knowrob;OpeningSomething"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
