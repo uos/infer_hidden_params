@@ -77,6 +77,13 @@
     </owl:NamedIndividual>
 
 
+    <!-- Orange Juice -->
+
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#Orange_Juice1">
+        <rdf:type rdf:resource="&knowrob;Orange_Juice"/>
+    </owl:NamedIndividual>
+
+
     <!-- TetraPak filled with General Drink -->
 
     <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#TetraPak1">

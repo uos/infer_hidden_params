@@ -1,5 +1,8 @@
 find_causing_action(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
 
+find_causing_action(drink_world:'DrinkingGlass1', knowrob:'contains', drink_world:'Orange_Juice1', RS).
+
+
 
 create_individual(knowrob:'PancakeMaker').
 actionset_toLocation(knowrob:'PancakeMaker_qdaDeDZn', A).

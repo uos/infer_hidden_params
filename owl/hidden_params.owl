@@ -190,7 +190,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;Apple_Juice_Bottle">
-        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;DrinkingBottle"/>
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -224,7 +224,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;Orange_Juice_Bottle">
-        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;DrinkingBottle"/>
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -258,7 +258,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;Mango_Juice_Bottle">
-        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;DrinkingBottle"/>
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -292,7 +292,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;Cherry_Juice_Bottle">
-        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;DrinkingBottle"/>
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -326,7 +326,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="&knowrob;Cranberry_Juice_Bottle">
-        <rdfs:subClassOf rdf:resource="&knowrob;Drinking_Bottle"/>
+        <rdfs:subClassOf rdf:resource="&knowrob;DrinkingBottle"/>
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf>
             <owl:Restriction>

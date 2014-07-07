@@ -55,7 +55,7 @@ action_effects:project_action_effects(Action) :-
   rdf_assert(TargetVessel, knowrob:contains, NewContent, knowrob_projection),
 
   rdf_assert(NewContent, knowrob:createdBy, Action, knowrob_projection),   
-  rdf_assert(NewContent, knowrob:'in-ContGeneric', To, knowrob_projection),
+  rdf_assert(NewContent, knowrob:'in-ContGeneric', TargetVessel, knowrob_projection),
 
   print(TargetVessel), print(' filled with '), print(NewContent), print('\n').
 

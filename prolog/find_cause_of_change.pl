@@ -32,7 +32,9 @@
     actionset_fromLocation(r,r),
     action_objectActedOn(r,r),
     action_toLocation(r,r),
-    action_fromLocation(r,r).
+    action_fromLocation(r,r),
+    objectset_propVal(r,r,r),
+    object_propVal(r,r,r).
 
 
 
@@ -121,6 +123,27 @@ action_fromLocation(Action, Object) :-
 
 
 
+%% objectset_propVal
+%
+% finds all object descriptions,
+% that feature the given Property with given Value
+objectset_propVal(Property, Value, ObjectSet) :-
+  setof(Object, object_propVal(Object, Property, Value), ObjectSet).
+
+%% object_propVal
+%
+% checks if the TBOX description of Object includes Property with Value
+object_propVal(Object, Property, Value) :-
+        owl_subclass_of(Object, knowrob:'EnduringThing-Localized'),
+        owl_direct_subclass_of(Object, Sup),
+        owl_direct_subclass_of(Sup, Sup2),
+        owl_restriction(Sup2, restriction(Property,has_value(Value))).
+object_propVal(Object, Property, Value) :-
+        owl_subclass_of(Object, knowrob:'EnduringThing-Localized'),
+        owl_direct_subclass_of(Object, Sup),
+        owl_restriction(Sup,restriction(Property,has_value(Value))).
+
+
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %
 % Querying for Actions which induce certain changes to the world
@@ -192,24 +215,24 @@ test_projection(Action, Obj, Prop, ToValue) :-
 % @param ResultSet  Set of known actions which are able to induce this change
 
 find_causing_action(Obj, Relation, AddedObj, ResultSet) :-
-  actionset_toLocation(Obj, ActionSet), !.
+  actionset_toLocation(Obj, ActionSet), !,
   owl_individual_of(AddedObj, AddedObjType),
 % TODO:
-% objectActedOn either Inst of addedObjType
-  owl_instance_of_class(SourceObj, knowrob_projection, AddedObjType);
-% or Inst of Obj containing addedObjType
-  (owl_has(AddedObjType, knowrob:'contains', ContainedObjType),
-    owl_instance_of_class(SourceObj, knowrob_projection, ContainedObjType)), 
+  % SourceObjType either AddedObjType or Obj containing AddedObjType
+  (SourceObjType = AddedObjType),
+    
+    % gives instance in World containing Orange_Juice
+%    owl_has(SourceObjType, knowrob:'contains', AddedObjType)),
   % try project action effects
-  actionset_projection_success(ActionSet, SourceObj, Obj, Relation, AddedObj, ResultSet).
+  actionset_projection_success(ActionSet, SourceObjType, Obj, Relation, AddedObj, ResultSet).
   
 
 actionset_projection_success([], _, _, _, _, []).
-actionset_projection_success(ActionSet, ObjActedOn, ToLocation, Relation, ObjOfComp, ResultSet) :-
+actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, ObjOfComp, ResultSet) :-
   append([Head], Tail, ActionSet),
-  actionset_projection_success(Tail, ObjActedOn, ToLocation, Relation, ObjOfComp, RS), 
+  actionset_projection_success(Tail, ObjActedOnType, ToLocation, Relation, ObjOfComp, RS), 
   % if: action projection results in correct changes
-  (test_projection(Head, ObjActedOn, ToLocation, Relation, ObjOfComp) ->
+  (test_projection(Head, ObjActedOnType, ToLocation, Relation, ObjOfComp) ->
     % then: add to ResultSet and clean cache
     print('correct changes induced \n'),
     append(RS, Head, ResultSet), clean_projection_cache;
@@ -217,7 +240,9 @@ actionset_projection_success(ActionSet, ObjActedOn, ToLocation, Relation, ObjOfC
     print('does not induce correct changes \n'), clean_projection_cache, ResultSet = RS).
 
    
-test_projection(Action, ObjActedOn, ToLocation, Relation, ObjOfComp) :-
+test_projection(Action, ObjActedOnType, ToLocation, Relation, ObjOfComp) :-
+  % create possible SourceObject
+  rdf_instance_from_class(ObjActedOn, knowrob_projection, ObjActedOnType),
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   rdf_assert(ActionInst, knowrob:'objectActedOn', ObjActedOn, knowrob_projection),
   rdf_assert(ActionInst, knowrob:'toLocation', ToLocation, knowrob_projection),
