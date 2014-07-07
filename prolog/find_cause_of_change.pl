@@ -214,17 +214,21 @@ test_projection(Action, Obj, Prop, ToValue) :-
 % @param addedObj   newly added Object 
 % @param ResultSet  Set of known actions which are able to induce this change
 
-find_causing_action(Obj, Relation, AddedObj, ResultSet) :-
+find_causing_action(Obj, Relation, AddedObj, PairResultSet) :-
   actionset_toLocation(Obj, ActionSet), !,
-  owl_individual_of(AddedObj, AddedObjType),
+  setof(Pair, SourceObjType^Action^AddedObjType^ObjectSet^ResultSet^(
+  owl_has(AddedObj, rdf:type, AddedObjType), (AddedObjType\='http://www.w3.org/2002/07/owl#NamedIndividual'),
 % TODO:
   % SourceObjType either AddedObjType or Obj containing AddedObjType
-  (SourceObjType = AddedObjType),
-    
+  (SourceObjType = AddedObjType;
+  objectset_propVal(knowrob:'contains', AddedObjType, ObjectSet), member(SourceObjType, ObjectSet)),
     % gives instance in World containing Orange_Juice
 %    owl_has(SourceObjType, knowrob:'contains', AddedObjType)),
   % try project action effects
-  actionset_projection_success(ActionSet, SourceObjType, Obj, Relation, AddedObj, ResultSet).
+  actionset_projection_success(ActionSet, SourceObjType, Obj, Relation, AddedObj, ResultSet),
+  (ResultSet\=[]),(member(Action, ResultSet); Action=ResultSet),
+  pairs_keys_values([Pair], [Action], [SourceObjType])
+  ), PairResultSet).
   
 
 actionset_projection_success([], _, _, _, _, []).
@@ -242,11 +246,12 @@ actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, Ob
    
 test_projection(Action, ObjActedOnType, ToLocation, Relation, ObjOfComp) :-
   % create possible SourceObject
-  rdf_instance_from_class(ObjActedOn, knowrob_projection, ObjActedOnType),
+  rdf_instance_from_class(ObjActedOnType, knowrob_projection, ObjActedOn),
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   rdf_assert(ActionInst, knowrob:'objectActedOn', ObjActedOn, knowrob_projection),
   rdf_assert(ActionInst, knowrob:'toLocation', ToLocation, knowrob_projection),
-  print('created: '), print(ActionInst), print(' for effect testing \n'),
+  print('created: '), print(ActionInst), print(' and '),
+  print(ObjActedOn), print(' for effect testing \n'),
   project_action_effects(ActionInst),!,
   % check wether new object related to ToLocation is of the same type as ObjOfComp
   owl_has(ToLocation, Relation, NewObj), owl_has(NewObj, rdf:type, Type),
