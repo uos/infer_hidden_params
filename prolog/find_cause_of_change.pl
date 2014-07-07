@@ -173,7 +173,6 @@ find_causing_action(Obj, Prop, FromValue, ToValue, ResultSet) :-
 %
 % @param ActionSet  Set of actions to be tested 
 % @param ...        (refer to find_causing_action: State Change Actions)
-
 actionset_projection_success([], _, _, _, []).
 actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
   append([Head], Tail, ActionSet),
@@ -193,7 +192,6 @@ actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
 %
 % @param Action     Action whose results are tested 
 % @param ...        (refer to find_causing_action: State Change Actions)
-
 test_projection(Action, Obj, Prop, ToValue) :-
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   rdf_assert(ActionInst, knowrob:'objectActedOn', Obj, knowrob_projection),
@@ -212,25 +210,35 @@ test_projection(Action, Obj, Prop, ToValue) :-
 % @param Obj        Known object which something is added to 
 % @param Relation   Relation between known and new object (eg. contains)
 % @param addedObj   newly added Object 
-% @param ResultSet  Set of known actions which are able to induce this change
+% @param PairResSet Set of known actions which are able to induce this change,
+%                   with corresponding objectActedOn
 
-find_causing_action(Obj, Relation, AddedObj, PairResultSet) :-
+find_causing_action(Obj, Relation, AddedObj, PairResSet) :-
   actionset_toLocation(Obj, ActionSet), !,
   setof(Pair, SourceObjType^Action^AddedObjType^ObjectSet^ResultSet^(
   owl_has(AddedObj, rdf:type, AddedObjType), (AddedObjType\='http://www.w3.org/2002/07/owl#NamedIndividual'),
-% TODO:
   % SourceObjType either AddedObjType or Obj containing AddedObjType
   (SourceObjType = AddedObjType;
   objectset_propVal(knowrob:'contains', AddedObjType, ObjectSet), member(SourceObjType, ObjectSet)),
-    % gives instance in World containing Orange_Juice
-%    owl_has(SourceObjType, knowrob:'contains', AddedObjType)),
+% gives instance in World containing Orange_Juice
+% owl_has(SourceObjType, knowrob:'contains', AddedObjType)),
   % try project action effects
   actionset_projection_success(ActionSet, SourceObjType, Obj, Relation, AddedObj, ResultSet),
   (ResultSet\=[]),(member(Action, ResultSet); Action=ResultSet),
   pairs_keys_values([Pair], [Action], [SourceObjType])
-  ), PairResultSet).
+  ), PairResSet).
   
 
+%% actionset_projection_success 
+%
+% TODO: Description
+%
+% @param ActionSet      Set of actions to be tested 
+% @param ObjActedOnType Class of the object the action acts on
+% @param ToLocation	The actions ToLocation
+% @param Relation       Relation between ToLocation and ObjActedOn (eg. contains)
+% @param ObjOfComp      Object of the same class as the new object produced by action
+% @param ResultSet	Set of actions generating the desired result  
 actionset_projection_success([], _, _, _, _, []).
 actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, ObjOfComp, ResultSet) :-
   append([Head], Tail, ActionSet),
@@ -244,6 +252,12 @@ actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, Ob
     print('does not induce correct changes \n'), clean_projection_cache, ResultSet = RS).
 
    
+%% test_projection 
+%
+% TODO: Description
+%
+% @param Action     Action whose results are tested 
+% @param ...        (refer to actionset_projection_success/6)
 test_projection(Action, ObjActedOnType, ToLocation, Relation, ObjOfComp) :-
   % create possible SourceObject
   rdf_instance_from_class(ObjActedOnType, knowrob_projection, ObjActedOn),
