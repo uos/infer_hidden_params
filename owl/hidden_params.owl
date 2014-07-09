@@ -54,6 +54,10 @@
     //
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
+    
+    <owl:Class rdf:about="&knowrob;Mixing">
+        <rdfs:subClassOf rdf:resource="&knowrob;PhysicalTransformationEvent"/>
+    </owl:Class>
 
     <owl:Class rdf:about="&knowrob;FillingProcess">
         <rdfs:subClassOf>
