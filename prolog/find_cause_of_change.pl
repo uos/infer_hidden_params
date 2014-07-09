@@ -2,8 +2,8 @@
 :- module(find_cause,
     [
       find_causing_action/5,
-      find_causing_action/4
-%     find_causing_action/1
+      find_causing_action/4,
+      find_causing_action/2
     ]).
 
 :- use_module(library('action_effects_ext')).
@@ -14,18 +14,21 @@
 :- use_module(library('semweb/rdfs_computable')).
 :- use_module(library('knowrob_owl')).
 
-:- rdf_db:rdf_register_ns(knowrob, 'http://ias.cs.tum.edu/kb/knowrob.owl#', [keep(true)]).
+:- rdf_db:rdf_register_ns(knowrob,'http://ias.cs.tum.edu/kb/knowrob.owl#', [keep(true)]).
 :- rdf_db:rdf_register_ns(rdfs, 'http://www.w3.org/2000/01/rdf-schema#', [keep(true)]).
 :- rdf_db:rdf_register_ns(owl, 'http://www.w3.org/2002/07/owl#', [keep(true)]).
 
 :- rdf_meta
     find_causing_action(r,r,r,r,r),
     find_causing_action(r,r,r,r),
-%   find_causing_action(r).
+    find_causing_action(r,r),
+
     test_projection(r,r,r,r),
-    actionset_success(r,r,r,r,r),
+    actionset_projection_success(r,r,r,r,r),
     test_projection(r,r,r,r,r),
-    actionset_success(r,r,r,r,r,r),
+    actionset_projection_success(r,r,r,r,r,r),
+    test_projection(r,r,r),
+    actionset_projection_success(r,r,r),
 
     actionset_objectActedOn(r,r),
     actionset_toLocation(r,r),
@@ -48,6 +51,16 @@ clean_projection_cache :-
 
 
 
+%% reduce_set_bySuperClass
+%
+% returns only those classes of a set
+% who are of type SuperClass
+reduce_set_bySuperClass(Set, SuperClass, NewSet) :-
+  setof(Indiv, (member(Indiv, Set),
+    owl_subclass_of(Indiv, SuperClass)), NewSet).
+
+
+
 %% actionset_objectActedOn
 %
 % finds all action descriptions,
@@ -64,12 +77,12 @@ actionset_objectActedOn(ObjInst, ActionSet) :-
 %
 % checks if the TBOX description of Action includes Object as an objectActedOn
 action_objectActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Action'),
         owl_direct_subclass_of(Action, Sup),
         owl_direct_subclass_of(Sup, Sup2),
         owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
 action_objectActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Action'),
         owl_direct_subclass_of(Action, Sup),
         owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
 
@@ -88,12 +101,12 @@ actionset_toLocation(ObjInst, ActionSet) :-
 %
 % checks if the TBOX description of Action includes Object as a toLocation
 action_toLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Translocation'),
         owl_direct_subclass_of(Action, Sup),
         owl_direct_subclass_of(Sup, Sup2),
         owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
 action_toLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Translocation'),
         owl_direct_subclass_of(Action, Sup),
         owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
 
@@ -112,12 +125,12 @@ actionset_fromLocation(ObjInst, ActionSet) :-
 %
 % checks if the TBOX description of Action includes Object as a fromLocation
 action_fromLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Movement-TranslationEvent'),
         owl_direct_subclass_of(Action, Sup),
         owl_direct_subclass_of(Sup, Sup2),
         owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
 action_fromLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
+        owl_subclass_of(Action, knowrob:'Movement-TranslationEvent'),
         owl_direct_subclass_of(Action, Sup),
         owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
 
@@ -164,7 +177,8 @@ find_causing_action(Obj, Prop, FromValue, ToValue, ResultSet) :-
 
   owl_has(Obj, Prop, FromValue),
   actionset_objectActedOn(Obj, ActionSet), !,
-  actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet).
+  reduce_set_bySuperClass(ActionSet, knowrob:'IntrinsicStateChangeEvent', NewActionSet),
+  actionset_projection_success(NewActionSet, Obj, Prop, ToValue, ResultSet).
 
 
 %% actionset_projection_success 
@@ -173,6 +187,7 @@ find_causing_action(Obj, Prop, FromValue, ToValue, ResultSet) :-
 %
 % @param ActionSet  Set of actions to be tested 
 % @param ...        (refer to find_causing_action: State Change Actions)
+% TODO: use findall
 actionset_projection_success([], _, _, _, []).
 actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
   append([Head], Tail, ActionSet),
@@ -180,10 +195,9 @@ actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
   % if: action projection results in correct changes
   (test_projection(Head, Obj, Prop, ToValue) ->
     % then: add to ResultSet and clean cache
-    print('correct changes induced \n'),
     append(RS, Head, ResultSet), clean_projection_cache;
     % else: clean cache
-    print('does not induce correct changes \n'), clean_projection_cache, ResultSet = RS).
+    clean_projection_cache, ResultSet = RS).
 
 
 %% test_projection 
@@ -195,7 +209,6 @@ actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
 test_projection(Action, Obj, Prop, ToValue) :-
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   rdf_assert(ActionInst, knowrob:'objectActedOn', Obj, knowrob_projection),
-  print('created: '), print(ActionInst), print(' for effect testing \n'),
   project_action_effects(ActionInst),!,
   owl_has(Obj, Prop, ToValue).
 
@@ -239,6 +252,7 @@ find_causing_action(Obj, Relation, AddedObj, PairResSet) :-
 % @param Relation       Relation between ToLocation and ObjActedOn (eg. contains)
 % @param ObjOfComp      Object of the same class as the new object produced by action
 % @param ResultSet	Set of actions generating the desired result  
+% TODO: use findall
 actionset_projection_success([], _, _, _, _, []).
 actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, ObjOfComp, ResultSet) :-
   append([Head], Tail, ActionSet),
@@ -246,10 +260,9 @@ actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, Ob
   % if: action projection results in correct changes
   (test_projection(Head, ObjActedOnType, ToLocation, Relation, ObjOfComp) ->
     % then: add to ResultSet and clean cache
-    print('correct changes induced \n'),
     append(RS, Head, ResultSet), clean_projection_cache;
     % else: clean cache
-    print('does not induce correct changes \n'), clean_projection_cache, ResultSet = RS).
+    clean_projection_cache, ResultSet = RS).
 
    
 %% test_projection 
@@ -264,18 +277,75 @@ test_projection(Action, ObjActedOnType, ToLocation, Relation, ObjOfComp) :-
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   rdf_assert(ActionInst, knowrob:'objectActedOn', ObjActedOn, knowrob_projection),
   rdf_assert(ActionInst, knowrob:'toLocation', ToLocation, knowrob_projection),
-  print('created: '), print(ActionInst), print(' and '),
-  print(ObjActedOn), print(' for effect testing \n'),
   project_action_effects(ActionInst),!,
   % check wether new object related to ToLocation is of the same type as ObjOfComp
   owl_has(ToLocation, Relation, NewObj), owl_has(NewObj, rdf:type, Type),
   (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
 
 
-%% find_causing_action: Removing something from a object/container/etc.
 
-% Creating something new
-%find_causing_action(Obj) :-
+%% find_causing_action: Something new appears/was created
+%
+% TODO: Description
+%
+% shortcomings: some Actions TBox-Descriptions include outputsCreated property
+%   others only add this property via the project_action_effects(Action) predicate
+% here: only actions are found for whom the project_action_effects predicate is definded
+%
+% @param Obj  new Object
+
+find_causing_action(Obj, PairResSet) :-
+  % TODO: default: movingSomethingSomewhere
+  % all actions where outputs are created
+  setof(Action, owl_subclass_of(Action, knowrob:'CreationEvent'), ActionSet),
+  % TODO: eliminate Descriptions
+  % project effects of all actions
+  actionset_projection_success(ActionSet, Obj, PairResSet),
+  clean_projection_cache.
+
+
+%% actionset_projection_success 
+%
+% TODO: Description
+%
+% @param ActionSet      Set of actions to be tested 
+% @param ObjOfComp	
+actionset_projection_success([], _, []).
+actionset_projection_success(ActionSet, ObjOfComp, PairResultSet) :-
+  print(ActionSet),
+  findall(Pair, (pairs_keys_values([Pair],[Action],[ObjActOnType]),
+    member(Action, ActionSet),
+    % test ObjOfComp as ObjActedOn
+    ((owl_has(ObjOfComp, rdf:type, ObjActOnType),
+      (ObjActOnType\='http://www.w3.org/2002/07/owl#NamedIndividual'),
+      test_projection(Action, [ObjActOnType], ObjOfComp));
+    % try determining objActedOn in correspondance to Action
+    (findall(ObjType, action_objectActedOn(Action, ObjType), ObjActOnTypeList),
+      test_projection(Action, ObjActOnTypeList, ObjOfComp),
+      member(ObjActOnType, ObjActOnTypeList)))
+    ), PairResultSet).
+   
+
+%% test_projection 
+%
+% TODO: Description
+%
+% @param Action     Action whose results are tested 
+% @param ...        (refer to actionset_projection_success/6)
+test_projection(Action, ObjActedOnSet, ObjOfComp) :-
+  % create all possible ObjActedOn
+  rdf_instance_from_class(Action, knowrob_projection, ActionInst),
+  forall(member(ObjType, ObjActedOnSet),
+    (rdf_instance_from_class(ObjType, knowrob_projection, ObjActedOn),
+    rdf_assert(ActionInst, 'http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', ObjActedOn, knowrob_projection))),
+  project_action_effects(ActionInst),
+  % check wether any of new objects created is of the same type as ObjOfComp
+  owl_has(ActionInst, knowrob:'outputsCreated', NewObj), owl_has(NewObj, rdf:type, Type),
+  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
+
+
+%% find_causing_action: Removing something from a object/container/etc.
+% TODO
    
 
 
