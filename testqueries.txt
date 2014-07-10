@@ -6,12 +6,13 @@ find_causing_action(cheese_world:'Gouda1', PRS).
 
 
 
-
 rdf_instance_from_class(knowrob:'Dough', A).
-find_causing_action(A, PRS).
+find_causing_action(knowrob:'Dough_vUXiHMJy', PRS).
 
 rdf_instance_from_class(knowrob:'EggShell',A).
 actionset_projection_success(['http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg'], 'http://ias.cs.tum.edu/kb/knowrob.owl#EggShell_vUXiHMJy', PRS).
+
+
 
 
 A = ['http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg'], actionset_projection_success(A, cheese_world:'Gouda1', PRS).
@@ -30,3 +31,20 @@ test_projection('http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg', ['h
 A = ['http://ias.cs.tum.edu/kb/knowrob.owl#MixForBakedGoods', 'http://ias.cs.tum.edu/kb/knowrob.owl#WheatFlour'], test_projection(knowrob:'Mixing', A , cheese_world:'Gouda1').
 
 A = ['http://ias.cs.tum.edu/kb/knowrob.owl#Gouda'], test_projection(knowrob:'Mixing', A , cheese_world:'Gouda1').
+
+
+rdf_instance_from_class(knowrob:'Egg-Chickens', A).
+
+find_cause_of_disappearance(knowrob:'Egg-Chickens_vUXiHMJy', RS).
+
+
+
+%%% create_action_inst works
+
+Obj = ['http://ias.cs.tum.edu/kb/knowrob.owl#Juice', 'http://ias.cs.tum.edu/kb/knowrob.owl#Drink'],
+ToLoc = ['http://ias.cs.tum.edu/kb/knowrob.owl#DrinkingGlass'],
+create_action_inst(knowrob:'Mixing', Obj, ToLoc, [], A).
+
+owl_has(knowrob:'Mixing_vUXiHMJy', O, P).
+
+

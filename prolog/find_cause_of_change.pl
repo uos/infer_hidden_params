@@ -3,7 +3,8 @@
     [
       find_causing_action/5,
       find_causing_action/4,
-      find_causing_action/2
+      find_causing_action/2,
+      find_cause_of_disappearance/2
     ]).
 
 :- use_module(library('action_effects_ext')).
@@ -22,6 +23,12 @@
     find_causing_action(r,r,r,r,r),
     find_causing_action(r,r,r,r),
     find_causing_action(r,r),
+    
+    find_cause_of_disappearance(r,?),
+    test_projection_disappearance(r,r),
+
+    create_action_inst(r,r,r,r,?),
+    action_objActedOn(r,r),
 
     test_projection(r,r,r,r),
     actionset_projection_success(r,r,r,r,r),
@@ -40,6 +47,12 @@
     object_propVal(r,r,r).
 
 
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%
+% Helper Functions
+%
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
 
 %% clean_projection_cache (see also: knowrob_actions/prolog/action_effects.pl)
 %
@@ -48,6 +61,53 @@
 clean_projection_cache :-
   rdf_retractall(_, _, _, knowrob_projection),
   rdf_retractall(_, knowrob_projection, _).
+
+
+%% create_action_inst
+%
+% creates an ActionInst with the given ObjActOns, To- and FromLocations
+%
+% @param Action       Type of Action to be created
+% @param ObjActOnSet  List of Objects/ObjectInstances to be objectsActedOn
+% @param ToLocSet     List of Locations/LocationInstances to be toLocations
+% @param FromLocSet   List of Locations/LocationInstances to be fromLocations
+%
+% @return ActionInst  created ActionInstance 
+create_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
+  rdf_instance_from_class(Action, knowrob_projection, ActionInst),
+  forall(member(ObjType, ObjActOnSet),
+    ((owl_individual_of(ObjType, owl:'Class') ->
+      rdf_instance_from_class(ObjType, knowrob_projection, ObjActOn);
+      (ObjActOn = ObjType)),
+    rdf_assert(ActionInst, knowrob:'objectActedOn', ObjActOn, knowrob_projection))),
+  forall(member(ToLocType, ToLocSet),
+    ((owl_individual_of(ToLocType, owl:'Class') ->
+      rdf_instance_from_class(ToLocType, knowrob_projection, ToLoc);
+      (ToLoc = ToLocType)),
+    rdf_assert(ActionInst, knowrob:'toLocation', ToLoc, knowrob_projection))),
+  forall(member(FromLocType, FromLocSet),
+    ((owl_individual_of(FromLocType, owl:'Class') ->
+      rdf_instance_from_class(FromLocType, knowrob_projection, FromLoc);
+      (FromLoc = FromLocType)),
+    rdf_assert(ActionInst, knowrob:'fromLocation', FromLoc, knowrob_projection))).
+
+
+
+%% action_objActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%
+% checks if the TBOX description of Action includes Object as an objectActedOn
+action_objActedOn(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Action'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_direct_subclass_of(Sup, Sup2),
+        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+action_objActedOn(Action, Object) :-
+        owl_subclass_of(Action, knowrob:'Action'),
+        owl_direct_subclass_of(Action, Sup),
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+
+
+
 
 
 
@@ -68,12 +128,12 @@ reduce_set_bySuperClass(Set, SuperClass, NewSet) :-
 actionset_objectActedOn(ObjInst, ActionSet) :-
   setof(Action, ObjActOnType^(
     owl_individual_of(ObjInst, ObjActOnType),
-    action_objectActedOn(Action, ObjActOnType)), SuperActionSet), !,
+    action_objectActedOn(Action, ObjActOnType)), SuperActionSet), 
   % include actions which only inherit objectActedOn
   setof(Action, SuperAction^(member(SuperAction, SuperActionSet),
     owl_subclass_of(Action, SuperAction)), ActionSet).
 
-%% action_objectActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%% action_objActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
 %
 % checks if the TBOX description of Action includes Object as an objectActedOn
 action_objectActedOn(Action, Object) :-
@@ -157,11 +217,13 @@ object_propVal(Object, Property, Value) :-
         owl_restriction(Sup,restriction(Property,has_value(Value))).
 
 
+
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %
 % Querying for Actions which induce certain changes to the world
 %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
+
 
 %% find_causing_action: State Change Actions
 %
@@ -344,8 +406,39 @@ test_projection(Action, ObjActedOnSet, ObjOfComp) :-
   (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
 
 
+   
+%% find_cause_of_disappearance
+%
+% finds responsible action for the dissappearance of an object
+%
+% @param ObjInst    Instance of Object which was observed previously
+% @param ResultSet  Set of actions possibly causing this change
+
+find_cause_of_disappearance(ObjInst, ResultSet) :- 
+  % findall actions which are DestructionEvents and may act on ObjInstance
+  setof(Action,
+    (owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
+    owl_individual_of(ObjInst, Object),
+    action_objActedOn(SuperAction, Object), 
+    owl_subclass_of(Action, SuperAction)), ActionSet),
+  findall(Action,
+    (member(Action, ActionSet),
+    test_projection_for_disappearance(Action, ObjInst)
+  ), ResultSet),
+  clean_projection_cache.
+  %TODO: add Movement as possible cause
+
+test_projection_for_disappearance(Action, Object) :-
+  append([Object], [], ObjList),
+  create_action_inst(Action, ObjList, [], [], ActInst),
+  project_action_effects(ActInst),
+  owl_has(ActInst, knowrob:'inputsDestroyed', Object).
+
+
+
+ 
+  
+
 %% find_causing_action: Removing something from a object/container/etc.
 % TODO
-   
-
 
