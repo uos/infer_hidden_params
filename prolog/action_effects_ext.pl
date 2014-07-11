@@ -37,8 +37,8 @@ action_effects:project_action_effects(Action) :-
   owl_has(Action, knowrob:objectActedOn, SourceVessel),
   owl_has(Action, knowrob:toLocation, TargetVessel),
   owl_has(SourceVessel, knowrob:'contains', SourceContent),
-  ((owl_has(SourceContent, rdf:type, 'http://www.w3.org/2002/07/owl#Class'), SourceType=SourceContent);
-    (owl_has(SourceContent, rdf:type, SourceType), dif(SourceType, 'http://www.w3.org/2002/07/owl#NamedIndividual'))),
+  (owl_has(SourceContent, rdf:type, 'http://www.w3.org/2002/07/owl#Class') -> SourceType=SourceContent;
+    (owl_has(SourceContent, rdf:type, SourceType), SourceType\='http://www.w3.org/2002/07/owl#NamedIndividual')),
   \+ (owl_has(TargetVessel, knowrob:'contains', TargetContent), owl_has(TargetContent, rdf:type, SourceType)),!,
 
   % new objects
