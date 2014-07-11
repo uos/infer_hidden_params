@@ -209,16 +209,19 @@ test_projection_for_stateChange(Action, Object, Property, Value) :-
 %                   with corresponding objectActedOn
 
 find_cause_of_appearance(ObjInst, PairResSet) :-
-  % TODO: add default: movingSomethingSomewhere
   setof(Action, owl_subclass_of(Action, knowrob:'CreationEvent'),  ActionSet),
+  owl_has(ObjInst, rdf:type, Obj), Obj\='http://www.w3.org/2002/07/owl#NamedIndividual',
   findall(Pair, (member(Action, ActionSet),
     % ObjActedOn is of same type as ObjInst
-    ((owl_has(ObjInst, rdf:type, Obj), Obj\='http://www.w3.org/2002/07/owl#NamedIndividual',
-    append([Obj], [], ObjActOnList));
+    (append([Obj], [], ObjActOnList);
     % or objActedOn is determined in correspondance to Action
     (findall(Obj, getObject_objectActedOn(Action, Obj), ObjActOnList))),
     test_projection_for_appearance(Action, ObjActOnList, ObjInst),
-    pairs_keys_values([Pair], [Action], ObjActOnList)), PairResSet),
+    pairs_keys_values([Pair], [Action], ObjActOnList)), Pairs),
+  % add default: movingSomethingSomewhere
+  pairs_keys_values(Pair,
+    ['http://ias.cs.tum.edu/kb/knowrob.owl#PuttingSomethingSomewhere'],[Obj]),
+  append(Pairs, Pair, PairResSet), 
   clean_projection_cache.
 
 % tests wether performing Action with Object from ObjList as objectActedOn
@@ -296,9 +299,10 @@ find_cause_of_disappearance(ObjInst, ResultSet) :-
   findall(Action, 
     (member(Action, ActionSet),
     test_projection_for_disappearance(Action, ObjInst)
-  ), ResultSet),
+  ), Set),
+  % add default: movingSomethingSomewhere
+  append(Set, ['http://ias.cs.tum.edu/kb/knowrob.owl#PuttingSomethingSomewhere'], ResultSet),
   clean_projection_cache.
-  %TODO: add Movement as possible cause
 
 % tests wether performing Action with Object as objectActedOn
 % results in Object being destroyed
