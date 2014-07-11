@@ -4,11 +4,11 @@ find_cause(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed
 % works
 find_cause_of_appearance(drink_world:'DrinkingGlass1', knowrob:'contains', drink_world:'Orange_Juice1', RS).
 
-
-
-find_causing_action(cheese_world:'Gouda1', PRS).
-
-
+% works
+find_cause_of_appearance(cheese_world:'Gouda1', PRS).
+% works
+rdf_instance_from_class(knowrob:'EggShell',A).
+find_cause_of_appearance(knowrob:'EggShell_vUXiHMJy', PRS).
 
 % works 
 rdf_instance_from_class(knowrob:'Egg-Chickens', A).
@@ -17,37 +17,4 @@ find_cause_of_disappearance(knowrob:'Egg-Chickens_vUXiHMJy', RS).
 % works 
 project_action_effects(drink_world:'FillingProcess1').
 find_cause_of_dissappearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice_vUXiHMJy', RS).
-
-
-action_objActedOn('http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg', O).
-
-
-rdf_instance_from_class(knowrob:'Dough', A).
-find_causing_action(knowrob:'Dough_vUXiHMJy', PRS).
-
-rdf_instance_from_class(knowrob:'EggShell',A).
-actionset_projection_success(['http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg'], 'http://ias.cs.tum.edu/kb/knowrob.owl#EggShell_vUXiHMJy', PRS).
-
-
-
-
-A = ['http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg'], actionset_projection_success(A, cheese_world:'Gouda1', PRS).
-
-A = ['http://ias.cs.tum.edu/kb/pancake-making.owl#MakingPancakes'], actionset_projection_success(A, cheese_world:'Gouda1', PRS).
-
-
-test_projection('http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg', ['http://ias.cs.tum.edu/kb/knowrob.owl#Gouda'], cheese_world:'Gouda1').
-
-test_projection('http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg', ['http://ias.cs.tum.edu/kb/knowrob.owl#Gouda', 'http://ias.cs.tum.edu/kb/knowrob.owl#Egg-Chickens'], cheese_world:'Gouda1').
-
-
-
-
-
-A = ['http://ias.cs.tum.edu/kb/knowrob.owl#MixForBakedGoods', 'http://ias.cs.tum.edu/kb/knowrob.owl#WheatFlour'], test_projection(knowrob:'Mixing', A , cheese_world:'Gouda1').
-
-A = ['http://ias.cs.tum.edu/kb/knowrob.owl#Gouda'], test_projection(knowrob:'Mixing', A , cheese_world:'Gouda1').
-
-
-
 

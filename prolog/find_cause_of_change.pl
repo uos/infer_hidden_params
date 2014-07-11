@@ -1,9 +1,9 @@
 
 :- module(find_cause,
     [
-      find_causing_action/2,
       find_cause_of_stateChange/5,
       find_cause_of_stateChange/4,
+      find_cause_of_appearance/2,
       find_cause_of_appearance/4,
       find_cause_of_disappearance/2,
       find_cause_of_disappearance/4
@@ -22,12 +22,12 @@
 :- rdf_db:rdf_register_ns(owl, 'http://www.w3.org/2002/07/owl#', [keep(true)]).
 
 :- rdf_meta
-    find_causing_action(r,r,r,r),
-    find_causing_action(r,r),
-    
     find_cause_of_stateChange(r,r,r,r,?),
     find_cause_of_stateChange(r,r,r,?),
+    test_projection_for_stateChange(r,r,r,r),
 
+    find_cause_of_appearance(r,?),
+    test_projection_for_appearance(r,r,r),
     find_cause_of_appearance(r,r,r,?),
     test_projection_for_appearance(r,r,r,r,r),
 
@@ -39,13 +39,8 @@
     create_action_inst(r,r,r,r,?),
     getAction_objectActedOn(?,r),
     getObject_objectActedOn(r,?),
-    getObject_propVal(?,r,r),
+    getObject_propVal(?,r,r).
 
-    test_projection(r,r,r),
-    actionset_projection_success(r,r,r),
-
-    actionset_objectActedOn(r,r),
-    action_objectActedOn(r,r),
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -63,6 +58,7 @@
 clean_projection_cache :-
   rdf_retractall(_, _, _, knowrob_projection),
   rdf_retractall(_, knowrob_projection, _).
+
 
 
 %% create_action_inst
@@ -156,46 +152,6 @@ getObject_propVal(Object, Property, Value) :-
 
 
 
-
-
-%% reduce_set_bySuperClass
-%
-% returns only those classes of a set
-% who are of type SuperClass
-reduce_set_bySuperClass(Set, SuperClass, NewSet) :-
-  setof(Indiv, (member(Indiv, Set),
-    owl_subclass_of(Indiv, SuperClass)), NewSet).
-
-
-%% actionset_objectActedOn
-%
-% finds all action descriptions,
-% that may feature ObjInst as an objectActedOn
-actionset_objectActedOn(ObjInst, ActionSet) :-
-  setof(Action, ObjActOnType^(
-    owl_individual_of(ObjInst, ObjActOnType),
-    action_objectActedOn(Action, ObjActOnType)), SuperActionSet), 
-  % include actions which only inherit objectActedOn
-  setof(Action, SuperAction^(member(SuperAction, SuperActionSet),
-    owl_subclass_of(Action, SuperAction)), ActionSet).
-
-%% action_objActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
-%
-% checks if the TBOX description of Action includes Object as an objectActedOn
-action_objectActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Action'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
-action_objectActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Action'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
-
-
-
-
-
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 %
 % Querying for Actions which induce certain changes to the world
@@ -237,6 +193,42 @@ test_projection_for_stateChange(Action, Object, Property, Value) :-
   create_action_inst(Action, ObjList, [], [], ActInst),
   project_action_effects(ActInst),
   owl_has(Object, Property, Value).
+
+
+
+%% find_cause_of_appearance
+%
+% finds action that may be responsible for the appearance of a new Object
+%
+% shortcomings: some Actions TBox-Descriptions include outputsCreated property
+%   others only add this property via the project_action_effects(Action) predicate
+% here: only actions are found for whom the project_action_effects predicate is definded
+%
+% @param ObjInst    new Object
+% @param PairResSet Set of known actions which are able to induce this change,
+%                   with corresponding objectActedOn
+
+find_cause_of_appearance(ObjInst, PairResSet) :-
+  % TODO: add default: movingSomethingSomewhere
+  setof(Action, owl_subclass_of(Action, knowrob:'CreationEvent'),  ActionSet),
+  findall(Pair, (member(Action, ActionSet),
+    % ObjActedOn is of same type as ObjInst
+    ((owl_has(ObjInst, rdf:type, Obj), Obj\='http://www.w3.org/2002/07/owl#NamedIndividual',
+    append([Obj], [], ObjActOnList));
+    % or objActedOn is determined in correspondance to Action
+    (findall(Obj, getObject_objectActedOn(Action, Obj), ObjActOnList))),
+    test_projection_for_appearance(Action, ObjActOnList, ObjInst),
+    pairs_keys_values([Pair], [Action], ObjActOnList)), PairResSet),
+  clean_projection_cache.
+
+% tests wether performing Action with Object from ObjList as objectActedOn
+% results in an Object being created that is of the same type as ObjOfComp
+test_projection_for_appearance(Action, ObjList, ObjOfComp) :-
+  create_action_inst(Action, ObjList, [] , [], ActInst),
+  project_action_effects(ActInst),
+  % check wether any of the newly created objects is of the same type as ObjOfComp
+  owl_has(ActInst, knowrob:'outputsCreated', NewObj), owl_has(NewObj, rdf:type, Type),
+  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
 
 
 
@@ -285,70 +277,9 @@ test_projection_for_appearance(Action, Object, Location, Relation, ObjOfComp) :-
   (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type),
   % clean projection cache to allow another filling of Location 
   clean_projection_cache.
-
-
-
-%% find_causing_action: Something new appears/was created
-%
-% TODO: Description
-%
-% shortcomings: some Actions TBox-Descriptions include outputsCreated property
-%   others only add this property via the project_action_effects(Action) predicate
-% here: only actions are found for whom the project_action_effects predicate is definded
-%
-% @param Obj  new Object
-
-find_causing_action(Obj, PairResSet) :-
-  % TODO: default: movingSomethingSomewhere
-  % all actions where outputs are created
-  setof(Action, owl_subclass_of(Action, knowrob:'CreationEvent'), ActionSet),
-  % TODO: eliminate Descriptions
-  % project effects of all actions
-  actionset_projection_success(ActionSet, Obj, PairResSet),
-  clean_projection_cache.
-
-
-%% actionset_projection_success 
-%
-% TODO: Description
-%
-% @param ActionSet      Set of actions to be tested 
-% @param ObjOfComp	
-actionset_projection_success([], _, []).
-actionset_projection_success(ActionSet, ObjOfComp, PairResultSet) :-
-  print(ActionSet),
-  findall(Pair, (pairs_keys_values([Pair],[Action],[ObjActOnType]),
-    member(Action, ActionSet),
-    % test ObjOfComp as ObjActedOn
-    ((owl_has(ObjOfComp, rdf:type, ObjActOnType),
-      (ObjActOnType\='http://www.w3.org/2002/07/owl#NamedIndividual'),
-      test_projection(Action, [ObjActOnType], ObjOfComp));
-    % try determining objActedOn in correspondance to Action
-    (findall(ObjType, action_objectActedOn(Action, ObjType), ObjActOnTypeList),
-      test_projection(Action, ObjActOnTypeList, ObjOfComp),
-      member(ObjActOnType, ObjActOnTypeList)))
-    ), PairResultSet).
    
 
-%% test_projection 
-%
-% TODO: Description
-%
-% @param Action     Action whose results are tested 
-% @param ...        (refer to actionset_projection_success/6)
-test_projection(Action, ObjActedOnSet, ObjOfComp) :-
-  % create all possible ObjActedOn
-  rdf_instance_from_class(Action, knowrob_projection, ActionInst),
-  forall(member(ObjType, ObjActedOnSet),
-    (rdf_instance_from_class(ObjType, knowrob_projection, ObjActedOn),
-    rdf_assert(ActionInst, 'http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', ObjActedOn, knowrob_projection))),
-  project_action_effects(ActionInst),
-  % check wether any of new objects created is of the same type as ObjOfComp
-  owl_has(ActionInst, knowrob:'outputsCreated', NewObj), owl_has(NewObj, rdf:type, Type),
-  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
 
-
-   
 %% find_cause_of_disappearance
 %
 % finds actions that may be responsible for the disappearance of an object
