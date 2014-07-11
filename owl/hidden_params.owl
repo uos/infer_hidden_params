@@ -59,6 +59,10 @@
         <rdfs:subClassOf rdf:resource="&knowrob;PhysicalTransformationEvent"/>
     </owl:Class>
 
+    <owl:Class rdf:about="&knowrob;Cleaning">
+        <rdfs:subClassOf rdf:resource="&knowrob;IntrinsicStateChangeEvent"/>
+    </owl:Class>
+
     <owl:Class rdf:about="&knowrob;FillingProcess">
         <rdfs:subClassOf>
             <owl:Class>
