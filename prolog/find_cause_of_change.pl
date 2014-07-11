@@ -4,7 +4,8 @@
       find_causing_action/5,
       find_causing_action/4,
       find_causing_action/2,
-      find_cause_of_disappearance/2
+      find_cause_of_disappearance/2,
+      find_cause_of_disappearance/4
     ]).
 
 :- use_module(library('action_effects_ext')).
@@ -26,6 +27,8 @@
     
     find_cause_of_disappearance(r,?),
     test_projection_disappearance(r,r),
+    find_cause_of_disappearance(r,r,r,?),
+    test_projection_disappearance(r,r,r,r),
 
     create_action_inst(r,r,r,r,?),
     action_objActedOn(r,r),
@@ -58,6 +61,7 @@
 %
 % remove all triples and object instances
 % that have been asserted as part of the projection methods
+
 clean_projection_cache :-
   rdf_retractall(_, _, _, knowrob_projection),
   rdf_retractall(_, knowrob_projection, _).
@@ -71,8 +75,8 @@ clean_projection_cache :-
 % @param ObjActOnSet  List of Objects/ObjectInstances to be objectsActedOn
 % @param ToLocSet     List of Locations/LocationInstances to be toLocations
 % @param FromLocSet   List of Locations/LocationInstances to be fromLocations
-%
-% @return ActionInst  created ActionInstance 
+% @param ActionInst   created ActionInstance 
+
 create_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
   rdf_instance_from_class(Action, knowrob_projection, ActionInst),
   forall(member(ObjType, ObjActOnSet),
@@ -96,15 +100,18 @@ create_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
 %% action_objActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
 %
 % checks if the TBOX description of Action includes Object as an objectActedOn
+
 action_objActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Action'),
+        owl_subclass_of(Action, knowrob:'Event'),
         owl_direct_subclass_of(Action, Sup),
         owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(SupObject))),
+        owl_subclass_of(Object, SupObject).
 action_objActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Action'),
+        owl_subclass_of(Action, knowrob:'Event'),
         owl_direct_subclass_of(Action, Sup),
-        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(SupObject))),
+        owl_subclass_of(Object, SupObject).
 
 
 
@@ -409,25 +416,27 @@ test_projection(Action, ObjActedOnSet, ObjOfComp) :-
    
 %% find_cause_of_disappearance
 %
-% finds responsible action for the dissappearance of an object
+% finds actions that may be responsible for the disappearance of an object
 %
 % @param ObjInst    Instance of Object which was observed previously
 % @param ResultSet  Set of actions possibly causing this change
 
 find_cause_of_disappearance(ObjInst, ResultSet) :- 
   % findall actions which are DestructionEvents and may act on ObjInstance
-  setof(Action,
-    (owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
+  setof(Action, SuperAction^Object^(
+    owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
     owl_individual_of(ObjInst, Object),
     action_objActedOn(SuperAction, Object), 
     owl_subclass_of(Action, SuperAction)), ActionSet),
-  findall(Action,
+  findall(Action, 
     (member(Action, ActionSet),
     test_projection_for_disappearance(Action, ObjInst)
   ), ResultSet),
   clean_projection_cache.
   %TODO: add Movement as possible cause
 
+% tests wether performing Action with Object as objectActedOn
+% results in Object being destroyed
 test_projection_for_disappearance(Action, Object) :-
   append([Object], [], ObjList),
   create_action_inst(Action, ObjList, [], [], ActInst),
@@ -436,9 +445,37 @@ test_projection_for_disappearance(Action, Object) :-
 
 
 
- 
-  
+%% find_cause_of_disappearance (from an objects surface/container etc.) 
+%
+% finds actions that may be responsible for the disappearance 
+% of parts of an object (eg. content of a container)
+%
+% @param ObjInst     Known object of which some part disappeared
+% @param Relation    Relation the disappeared part had to the object (eg. knowrob:'contains')
+% @param ObjDisInst  Object which disappeared
+% @param ResultSet   Set of actions possibly causing this change
 
-%% find_causing_action: Removing something from a object/container/etc.
-% TODO
+find_cause_of_disappearance(ObjInst, Relation, ObjDisInst, ResultSet) :-
+  % check wether Relation is present in knowledgebase
+  owl_has(ObjInst, Relation, ObjDisInst),
+  % findall actions which are DestructionEvents and may act on ObjInst
+  setof(Action, SuperAction^Object^(
+    owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
+    owl_individual_of(ObjInst, Object),
+    action_objActedOn(SuperAction, Object), 
+    owl_subclass_of(Action, SuperAction)), ActionSet),
+  findall(Action,
+    (member(Action, ActionSet),
+    test_projection_for_disappearance(Action, ObjInst, Relation, ObjDisInst)
+  ), ResultSet),
+  clean_projection_cache.
+
+% tests wether performing Action with Object as objectActedOn
+% results in DestructObject being destroyed
+test_projection_for_disappearance(Action, Object, Relation, DestructObj) :-
+  append([Object], [], ObjList),
+  create_action_inst(Action, ObjList, [], [], ActInst),
+  project_action_effects(ActInst),
+  owl_has(ActInst, knowrob:'inputsDestroyed', DestructObj),
+  \+ owl_has(Object, Relation, DestructObj).
 

@@ -4,6 +4,16 @@ find_causing_action(drink_world:'DrinkingGlass1', knowrob:'contains', drink_worl
 
 find_causing_action(cheese_world:'Gouda1', PRS).
 
+% works 
+rdf_instance_from_class(knowrob:'Egg-Chickens', A).
+find_cause_of_disappearance(knowrob:'Egg-Chickens_vUXiHMJy', RS).
+
+% works 
+project_action_effects(drink_world:'FillingProcess1').
+find_cause_of_dissappearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice_vUXiHMJy', RS).
+
+
+
 
 
 rdf_instance_from_class(knowrob:'Dough', A).
@@ -33,18 +43,5 @@ A = ['http://ias.cs.tum.edu/kb/knowrob.owl#MixForBakedGoods', 'http://ias.cs.tum
 A = ['http://ias.cs.tum.edu/kb/knowrob.owl#Gouda'], test_projection(knowrob:'Mixing', A , cheese_world:'Gouda1').
 
 
-rdf_instance_from_class(knowrob:'Egg-Chickens', A).
-
-find_cause_of_disappearance(knowrob:'Egg-Chickens_vUXiHMJy', RS).
-
-
-
-%%% create_action_inst works
-
-Obj = ['http://ias.cs.tum.edu/kb/knowrob.owl#Juice', 'http://ias.cs.tum.edu/kb/knowrob.owl#Drink'],
-ToLoc = ['http://ias.cs.tum.edu/kb/knowrob.owl#DrinkingGlass'],
-create_action_inst(knowrob:'Mixing', Obj, ToLoc, [], A).
-
-owl_has(knowrob:'Mixing_vUXiHMJy', O, P).
 
 
