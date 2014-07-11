@@ -31,7 +31,8 @@
     test_projection_disappearance(r,r,r,r),
 
     create_action_inst(r,r,r,r,?),
-    action_objActedOn(r,r),
+    getAction_objectActedOn(?,r),
+    getObject_objectActedOn(r,?),
 
     test_projection(r,r,r,r),
     actionset_projection_success(r,r,r,r,r),
@@ -97,25 +98,38 @@ create_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
 
 
 
-%% action_objActedOn (see also: knowrob_actions/prolog/knowrob_actions.pl)
+%% getAction_objActedOn
 %
-% checks if the TBOX description of Action includes Object as an objectActedOn
+% checks which Action's TBOX descriptions
+% include the given Object as an objectActedOn (direct or inherited)
 
-action_objActedOn(Action, Object) :-
+getAction_objectActedOn(Action, Object) :-
         owl_subclass_of(Action, knowrob:'Event'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(SupObject))),
-        owl_subclass_of(Object, SupObject).
-action_objActedOn(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Event'),
-        owl_direct_subclass_of(Action, Sup),
+        owl_subclass_of(Action, Sup),
         owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(SupObject))),
         owl_subclass_of(Object, SupObject).
 
 
+%% getObject_objActedOn
+%
+% checks which Objects are definded as objectsActedOn
+% in the given Action's TBOX description
+%
+% Note: if Action defines a more specific objectActedOn than the one inherited by its Superclass
+% only such is returned
 
-
+getObject_objectActedOn(Action, Object) :-
+  owl_subclass_of(Action, knowrob:'Event'),
+  findall(Obj,
+    (owl_subclass_of(Action, Sup),
+    owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Obj)))
+    ), ObjSet),
+  findall(SubObj,
+    (member(SubObj, ObjSet), member(A, ObjSet), SubObj\=A,
+    \+ owl_subclass_of(A, SubObj)
+    ), SubObjSet),
+  member(SubObj, SubObjSet),
+  owl_subclass_of(Object, SubObj).
 
 
 %% reduce_set_bySuperClass
@@ -423,11 +437,10 @@ test_projection(Action, ObjActedOnSet, ObjOfComp) :-
 
 find_cause_of_disappearance(ObjInst, ResultSet) :- 
   % findall actions which are DestructionEvents and may act on ObjInstance
-  setof(Action, SuperAction^Object^(
-    owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
+  setof(Action, Object^(
+    owl_subclass_of(Action, knowrob:'DestructionEvent'),
     owl_individual_of(ObjInst, Object),
-    action_objActedOn(SuperAction, Object), 
-    owl_subclass_of(Action, SuperAction)), ActionSet),
+    getAction_objectActedOn(Action, Object)), ActionSet),
   findall(Action, 
     (member(Action, ActionSet),
     test_projection_for_disappearance(Action, ObjInst)
@@ -459,11 +472,10 @@ find_cause_of_disappearance(ObjInst, Relation, ObjDisInst, ResultSet) :-
   % check wether Relation is present in knowledgebase
   owl_has(ObjInst, Relation, ObjDisInst),
   % findall actions which are DestructionEvents and may act on ObjInst
-  setof(Action, SuperAction^Object^(
-    owl_subclass_of(SuperAction, knowrob:'DestructionEvent'),
+  setof(Action, Object^(
+    owl_subclass_of(Action, knowrob:'DestructionEvent'),
     owl_individual_of(ObjInst, Object),
-    action_objActedOn(SuperAction, Object), 
-    owl_subclass_of(Action, SuperAction)), ActionSet),
+    getAction_objectActedOn(Action, Object)), ActionSet),
   findall(Action,
     (member(Action, ActionSet),
     test_projection_for_disappearance(Action, ObjInst, Relation, ObjDisInst)
