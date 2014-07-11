@@ -76,6 +76,24 @@
         </rdfs:subClassOf>
     </owl:Class>
 
+    <owl:Class rdf:about="&knowrob;EmptyingAContainer">
+        <rdfs:subClassOf rdf:resource="&knowrob;PhysicalTransformationEvent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Container"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;DrinkingUp">
+        <rdfs:subClassOf rdf:resource="&knowrob;EmptyingAContainer"/>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;DumpingAContainersContent">
+        <rdfs:subClassOf rdf:resource="&knowrob;EmptyingAContainer"/>
+    </owl:Class>
+
     <owl:Class rdf:about="&knowrob;CuttingOffAPiece">
         <rdfs:subClassOf>
             <owl:Restriction>

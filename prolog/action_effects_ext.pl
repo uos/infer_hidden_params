@@ -62,6 +62,34 @@ action_effects:project_action_effects(Action) :-
 
 
 % % % % % % % % % % % % % % % % % % % %
+% DrinkingUp 
+action_effects:project_action_effects(Action) :-
+
+  owl_individual_of(Action, knowrob:'DrinkingUp').
+  %TODO
+
+
+
+% % % % % % % % % % % % % % % % % % % %
+% DumpingAContainersContent
+action_effects:project_action_effects(Action) :-
+
+  owl_individual_of(Action, knowrob:'DumpingAContainersContent'),
+
+  owl_has(Action, knowrob:objectActedOn, Container),
+  owl_has(Container, knowrob:'contains', Content),
+
+  % remove content relation
+  remove_object_prop(Container, knowrob:contains, _),
+ 
+  % new relations
+  rdf_assert(Action, knowrob:'inputsDestroyed', Content, knowrob_projection),
+
+  print(Container), print(' emptied \n'). 
+
+
+
+% % % % % % % % % % % % % % % % % % % %
 % Cutting off a piece (see also: knowrob_actions/prolog/action_effects.pl)
 action_effects:project_action_effects(Action) :-
 
