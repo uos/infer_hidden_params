@@ -1,10 +1,10 @@
 
 :- module(find_cause,
     [
-      find_causing_action/4,
       find_causing_action/2,
       find_cause_of_stateChange/5,
       find_cause_of_stateChange/4,
+      find_cause_of_appearance/4,
       find_cause_of_disappearance/2,
       find_cause_of_disappearance/4
     ]).
@@ -28,6 +28,9 @@
     find_cause_of_stateChange(r,r,r,r,?),
     find_cause_of_stateChange(r,r,r,?),
 
+    find_cause_of_appearance(r,r,r,?),
+    test_projection_for_appearance(r,r,r,r,r),
+
     find_cause_of_disappearance(r,?),
     test_projection_for_disappearance(r,r),
     find_cause_of_disappearance(r,r,r,?),
@@ -36,20 +39,13 @@
     create_action_inst(r,r,r,r,?),
     getAction_objectActedOn(?,r),
     getObject_objectActedOn(r,?),
+    getObject_propVal(?,r,r),
 
-    test_projection(r,r,r,r,r),
-    actionset_projection_success(r,r,r,r,r,r),
     test_projection(r,r,r),
     actionset_projection_success(r,r,r),
 
     actionset_objectActedOn(r,r),
-    actionset_toLocation(r,r),
-    actionset_fromLocation(r,r),
     action_objectActedOn(r,r),
-    action_toLocation(r,r),
-    action_fromLocation(r,r),
-    objectset_propVal(r,r,r),
-    object_propVal(r,r,r).
 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
@@ -133,6 +129,35 @@ getObject_objectActedOn(Action, Object) :-
   owl_subclass_of(Object, SubObj).
 
 
+
+%% getAction_toLocation
+%
+% checks which Action's TBOX descriptions
+% include the given Object/Location as toLocation  (direct or inherited)
+
+getAction_toLocation(Action, Location) :-
+        owl_subclass_of(Action, knowrob:'MovementEvent'),
+        owl_subclass_of(Action, Sup),
+        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(SupLoc))),
+        owl_subclass_of(Location, SupLoc).
+
+
+
+%% getObject_propVal
+%
+% checks which Object's TBOX descriptions
+% includes the given Property with the given Value (direct or inherited)
+
+getObject_propVal(Object, Property, Value) :-
+        owl_subclass_of(Object, knowrob:'EnduringThing-Localized'),
+        owl_subclass_of(Object, Sup),
+        owl_restriction(Sup, restriction(Property,has_value(Value))).
+
+
+
+
+
+
 %% reduce_set_bySuperClass
 %
 % returns only those classes of a set
@@ -140,7 +165,6 @@ getObject_objectActedOn(Action, Object) :-
 reduce_set_bySuperClass(Set, SuperClass, NewSet) :-
   setof(Indiv, (member(Indiv, Set),
     owl_subclass_of(Indiv, SuperClass)), NewSet).
-
 
 
 %% actionset_objectActedOn
@@ -169,74 +193,6 @@ action_objectActedOn(Action, Object) :-
         owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#objectActedOn', some_values_from(Object))).
 
 
-
-%% actionset_toLocation
-%
-% finds all action descriptions,
-% that may feature ObjInst as a toLocation
-actionset_toLocation(ObjInst, ActionSet) :-
-  setof(Action, ObjType^(
-    owl_individual_of(ObjInst, ObjType),
-    action_toLocation(Action, ObjType)), ActionSet).
-
-%% action_toLocation (see also: knowrob_actions/prolog/knowrob_actions.pl)
-%
-% checks if the TBOX description of Action includes Object as a toLocation
-action_toLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Translocation'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
-action_toLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Translocation'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#toLocation', some_values_from(Object))).
-
-
-
-%% actionset_fromLocation
-%
-% finds all action descriptions,
-% that may feature ObjInst as a fromLocation
-actionset_fromLocation(ObjInst, ActionSet) :-
-  setof(Action, ObjType^(
-    owl_individual_of(ObjInst, ObjType),
-    action_fromLocation(Action, ObjType)), ActionSet).
-
-%% action_fromLocation (see also: knowrob_actions/prolog/knowrob_actions.pl)
-%
-% checks if the TBOX description of Action includes Object as a fromLocation
-action_fromLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Movement-TranslationEvent'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
-action_fromLocation(Action, Object) :-
-        owl_subclass_of(Action, knowrob:'Movement-TranslationEvent'),
-        owl_direct_subclass_of(Action, Sup),
-        owl_restriction(Sup,restriction('http://ias.cs.tum.edu/kb/knowrob.owl#fromLocation', some_values_from(Object))).
-
-
-
-%% objectset_propVal
-%
-% finds all object descriptions,
-% that feature the given Property with given Value
-objectset_propVal(Property, Value, ObjectSet) :-
-  setof(Object, object_propVal(Object, Property, Value), ObjectSet).
-
-%% object_propVal
-%
-% checks if the TBOX description of Object includes Property with Value
-object_propVal(Object, Property, Value) :-
-        owl_subclass_of(Object, knowrob:'EnduringThing-Localized'),
-        owl_direct_subclass_of(Object, Sup),
-        owl_direct_subclass_of(Sup, Sup2),
-        owl_restriction(Sup2, restriction(Property,has_value(Value))).
-object_propVal(Object, Property, Value) :-
-        owl_subclass_of(Object, knowrob:'EnduringThing-Localized'),
-        owl_direct_subclass_of(Object, Sup),
-        owl_restriction(Sup,restriction(Property,has_value(Value))).
 
 
 
@@ -284,74 +240,51 @@ test_projection_for_stateChange(Action, Object, Property, Value) :-
 
 
 
-
-
-%% find_causing_action: Adding something new to an object/container/etc.
+%% find_cause_of_appearance (inside/on top of an object/container/etc.)
 %
-% The Object Instance is known, but a new property was added to it
-% (something was put onto/into the object)
+% finds action that may be responsible, that a new Relation was
+% added to a known Object Instance
+% (eg. something was put onto/into the object)
 %
-% @param Obj        Known object which something is added to 
+% @param ObjInst    Known object which something is added to 
 % @param Relation   Relation between known and new object (eg. contains)
 % @param addedObj   newly added Object 
 % @param PairResSet Set of known actions which are able to induce this change,
 %                   with corresponding objectActedOn
 
-find_causing_action(Obj, Relation, AddedObj, PairResSet) :-
-  actionset_toLocation(Obj, ActionSet), !,
-  setof(Pair, SourceObjType^Action^AddedObjType^ObjectSet^ResultSet^(
-  owl_has(AddedObj, rdf:type, AddedObjType), (AddedObjType\='http://www.w3.org/2002/07/owl#NamedIndividual'),
-  % SourceObjType either AddedObjType or Obj containing AddedObjType
-  (SourceObjType = AddedObjType;
-  objectset_propVal(knowrob:'contains', AddedObjType, ObjectSet), member(SourceObjType, ObjectSet)),
-% gives instance in World containing Orange_Juice
-% owl_has(SourceObjType, knowrob:'contains', AddedObjType)),
-  % try project action effects
-  actionset_projection_success(ActionSet, SourceObjType, Obj, Relation, AddedObj, ResultSet),
-  (ResultSet\=[]),(member(Action, ResultSet); Action=ResultSet),
-  pairs_keys_values([Pair], [Action], [SourceObjType])
-  ), PairResSet).
-  
+find_cause_of_appearance(ObjInst, Relation, AddedObjInst, PairResSet) :-
+  setof(Source, (
+    owl_has(AddedObjInst, rdf:type, AddedObj), AddedObj\='http://www.w3.org/2002/07/owl#NamedIndividual',
+    % Source contains AddedObj (in general)
+    (getObject_propVal(Source, knowrob:'contains', AddedObj); 
+    % or SourceInst contains AddedObj (current world state)
+    (owl_has(Source, knowrob:'contains', ContentInst), owl_individual_of(ContentInst, AddedObj));
+    % or Source equals added AddedObj
+    Source = AddedObj)), SourceSet),
+  print(SourceSet), print('\n'),
+  setof(Action, Object^(
+    owl_individual_of(ObjInst, Object),
+    getAction_toLocation(Action, Object)), ActionSet),
+  print(ActionSet), print('\n'),
+  findall(Pair,
+    (member(Action, ActionSet), member(Source, SourceSet),
+    test_projection_for_appearance(Action, Source, ObjInst, Relation, AddedObjInst),
+    pairs_keys_values([Pair], [Action], [Source])), PairResSet),
+  clean_projection_cache.
 
-%% actionset_projection_success 
-%
-% TODO: Description
-%
-% @param ActionSet      Set of actions to be tested 
-% @param ObjActedOnType Class of the object the action acts on
-% @param ToLocation	The actions ToLocation
-% @param Relation       Relation between ToLocation and ObjActedOn (eg. contains)
-% @param ObjOfComp      Object of the same class as the new object produced by action
-% @param ResultSet	Set of actions generating the desired result  
-% TODO: use findall
-actionset_projection_success([], _, _, _, _, []).
-actionset_projection_success(ActionSet, ObjActedOnType, ToLocation, Relation, ObjOfComp, ResultSet) :-
-  append([Head], Tail, ActionSet),
-  actionset_projection_success(Tail, ObjActedOnType, ToLocation, Relation, ObjOfComp, RS), 
-  % if: action projection results in correct changes
-  (test_projection(Head, ObjActedOnType, ToLocation, Relation, ObjOfComp) ->
-    % then: add to ResultSet and clean cache
-    append(RS, Head, ResultSet), clean_projection_cache;
-    % else: clean cache
-    clean_projection_cache, ResultSet = RS).
-
-   
-%% test_projection 
-%
-% TODO: Description
-%
-% @param Action     Action whose results are tested 
-% @param ...        (refer to actionset_projection_success/6)
-test_projection(Action, ObjActedOnType, ToLocation, Relation, ObjOfComp) :-
-  % create possible SourceObject
-  rdf_instance_from_class(ObjActedOnType, knowrob_projection, ObjActedOn),
-  rdf_instance_from_class(Action, knowrob_projection, ActionInst),
-  rdf_assert(ActionInst, knowrob:'objectActedOn', ObjActedOn, knowrob_projection),
-  rdf_assert(ActionInst, knowrob:'toLocation', ToLocation, knowrob_projection),
-  project_action_effects(ActionInst),!,
+% tests wether performing Action with Object as objectActedOn
+% and Location as toLocation results in
+% Location beeing related to ObjOfComp as specified by Relation 
+test_projection_for_appearance(Action, Object, Location, Relation, ObjOfComp) :-
+  append([Object], [], ObjList),
+  append([Location], [], ToLocList),
+  create_action_inst(Action, ObjList, ToLocList, [], ActInst),
+  project_action_effects(ActInst),
   % check wether new object related to ToLocation is of the same type as ObjOfComp
-  owl_has(ToLocation, Relation, NewObj), owl_has(NewObj, rdf:type, Type),
-  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
+  owl_has(Location, Relation, NewObj), owl_has(NewObj, rdf:type, Type),
+  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type),
+  % clean projection cache to allow another filling of Location 
+  clean_projection_cache.
 
 
 
