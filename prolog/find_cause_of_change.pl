@@ -1,9 +1,10 @@
 
 :- module(find_cause,
     [
-      find_causing_action/5,
       find_causing_action/4,
       find_causing_action/2,
+      find_cause_of_stateChange/5,
+      find_cause_of_stateChange/4,
       find_cause_of_disappearance/2,
       find_cause_of_disappearance/4
     ]).
@@ -21,21 +22,21 @@
 :- rdf_db:rdf_register_ns(owl, 'http://www.w3.org/2002/07/owl#', [keep(true)]).
 
 :- rdf_meta
-    find_causing_action(r,r,r,r,r),
     find_causing_action(r,r,r,r),
     find_causing_action(r,r),
     
+    find_cause_of_stateChange(r,r,r,r,?),
+    find_cause_of_stateChange(r,r,r,?),
+
     find_cause_of_disappearance(r,?),
-    test_projection_disappearance(r,r),
+    test_projection_for_disappearance(r,r),
     find_cause_of_disappearance(r,r,r,?),
-    test_projection_disappearance(r,r,r,r),
+    test_projection_for_disappearance(r,r,r,r),
 
     create_action_inst(r,r,r,r,?),
     getAction_objectActedOn(?,r),
     getObject_objectActedOn(r,?),
 
-    test_projection(r,r,r,r),
-    actionset_projection_success(r,r,r,r,r),
     test_projection(r,r,r,r,r),
     actionset_projection_success(r,r,r,r,r,r),
     test_projection(r,r,r),
@@ -246,54 +247,41 @@ object_propVal(Object, Property, Value) :-
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
 
 
-%% find_causing_action: State Change Actions
+%% find_cause_of_stateChange
 %
-% TODO: Description
+% finds actions that may be responsible for the change 
+% of an objects property value
 %
-% @param Obj        Object which undergoes the state change
+% @param ObjInst    Object which undergoes the state change
 % @param Prop       Property that changes
-% @param FromValue  Previous property value
+% @param FromValue  Previous property value (optional)
 % @param ToValue    New property value
 % @param ResultSet  Set of known actions which are able to induce this change
 
-find_causing_action(Obj, Prop, FromValue, ToValue, ResultSet) :-
+find_cause_of_stateChange(ObjInst, Prop, FromValue, ToValue, ResultSet) :-
+  owl_has(ObjInst, Prop, FromValue),
+  find_cause_of_stateChange(ObjInst, Prop, ToValue, ResultSet).
+  
+find_cause_of_stateChange(ObjInst, Prop, ToValue, ResultSet) :-
+  % findall actions which are IntrinsicStateChangeEvents and may act on ObjInst
+  setof(Action, Object^(
+    owl_subclass_of(Action, knowrob:'IntrinsicStateChangeEvent'),
+    owl_individual_of(ObjInst, Object),
+    getAction_objectActedOn(Action, Object)), ActionSet),
+  findall(Action,
+    (member(Action, ActionSet),
+    test_projection_for_stateChange(Action, ObjInst, Prop, ToValue)
+  ), ResultSet),
+  clean_projection_cache.
 
-  owl_has(Obj, Prop, FromValue),
-  actionset_objectActedOn(Obj, ActionSet), !,
-  reduce_set_bySuperClass(ActionSet, knowrob:'IntrinsicStateChangeEvent', NewActionSet),
-  actionset_projection_success(NewActionSet, Obj, Prop, ToValue, ResultSet).
+% tests wether performing Action with Object as objectActedOn
+% results in Property changing to Value 
+test_projection_for_stateChange(Action, Object, Property, Value) :-
+  append([Object], [], ObjList),
+  create_action_inst(Action, ObjList, [], [], ActInst),
+  project_action_effects(ActInst),
+  owl_has(Object, Property, Value).
 
-
-%% actionset_projection_success 
-%
-% TODO: Description
-%
-% @param ActionSet  Set of actions to be tested 
-% @param ...        (refer to find_causing_action: State Change Actions)
-% TODO: use findall
-actionset_projection_success([], _, _, _, []).
-actionset_projection_success(ActionSet, Obj, Prop, ToValue, ResultSet) :-
-  append([Head], Tail, ActionSet),
-  actionset_projection_success(Tail, Obj, Prop, ToValue, RS), 
-  % if: action projection results in correct changes
-  (test_projection(Head, Obj, Prop, ToValue) ->
-    % then: add to ResultSet and clean cache
-    append(RS, Head, ResultSet), clean_projection_cache;
-    % else: clean cache
-    clean_projection_cache, ResultSet = RS).
-
-
-%% test_projection 
-%
-% TODO: Description
-%
-% @param Action     Action whose results are tested 
-% @param ...        (refer to find_causing_action: State Change Actions)
-test_projection(Action, Obj, Prop, ToValue) :-
-  rdf_instance_from_class(Action, knowrob_projection, ActionInst),
-  rdf_assert(ActionInst, knowrob:'objectActedOn', Obj, knowrob_projection),
-  project_action_effects(ActionInst),!,
-  owl_has(Obj, Prop, ToValue).
 
 
 

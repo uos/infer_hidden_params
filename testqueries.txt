@@ -1,4 +1,5 @@
-find_causing_action(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
+% works
+find_cause(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
 
 find_causing_action(drink_world:'DrinkingGlass1', knowrob:'contains', drink_world:'Orange_Juice1', RS).
 
@@ -13,7 +14,7 @@ project_action_effects(drink_world:'FillingProcess1').
 find_cause_of_dissappearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice_vUXiHMJy', RS).
 
 
-
+action_objActedOn('http://ias.cs.tum.edu/kb/pancake-making.owl#CrackingAnEgg', O).
 
 
 rdf_instance_from_class(knowrob:'Dough', A).
