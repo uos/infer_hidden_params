@@ -2,7 +2,7 @@
 % dependencies 
 
 :- register_ros_package(ias_knowledge_base).
-:- register_ros_package(infer_hidden_params).
+:- register_ros_package(ar_kinect_perception_system).
 
 :- use_module(library('action_effects_ext')).
 :- use_module(library('find_cause_of_change')).
