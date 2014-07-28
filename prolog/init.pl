@@ -13,9 +13,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parse OWL files, register name spaces
 
-:- owl_parser:owl_parse('/home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob_own/infer_hidden_params/owl/cheese_world.owl', false, false, true).
-:- owl_parser:owl_parse('/home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob_own/infer_hidden_params/owl/drink_world.owl', false, false, true).
-:- owl_parser:owl_parse('/home/student/a/ahaeuser/ros-hydro/dry/stacks/knowrob_own/infer_hidden_params/owl/door_map.owl', false, false, true).
+:- owl_parser:owl_parse('../owl/cheese_world.owl', false, false, true).
+:- owl_parser:owl_parse('../owl/drink_world.owl', false, false, true).
+:- owl_parser:owl_parse('../owl/door_map.owl', false, false, true).
 
 :- rdf_db:rdf_register_ns(knowrob, 'http://ias.cs.tum.edu/kb/knowrob.owl#', [keep(true)]).
 :- rdf_db:rdf_register_ns(cheese_world, 'http://infer_hidden_params/cheese_world.owl#',     [keep(true)]).
