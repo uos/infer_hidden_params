@@ -243,41 +243,37 @@ test_projection_for_appearance(Action, ObjList, ObjOfComp) :-
 %
 % @param ObjInst    Known object which something is added to 
 % @param Relation   Relation between known and new object (eg. contains)
-% @param addedObj   newly added Object 
+% @param AddedObj   newly added Object 
 % @param PairResSet Set of known actions which are able to induce this change,
 %                   with corresponding objectActedOn
 
-find_cause_of_appearance(ObjInst, Relation, AddedObjInst, PairResSet) :-
+find_cause_of_appearance(ObjInst, Relation, AddedObj, PairResSet) :-
   setof(Source, (
-    owl_has(AddedObjInst, rdf:type, AddedObj), AddedObj\='http://www.w3.org/2002/07/owl#NamedIndividual',
     % Source contains AddedObj (in general)
     (getObject_propVal(Source, knowrob:'contains', AddedObj); 
     % or SourceInst contains AddedObj (current world state)
     (owl_has(Source, knowrob:'contains', ContentInst), owl_individual_of(ContentInst, AddedObj));
     % or Source equals added AddedObj
     Source = AddedObj)), SourceSet),
-  print(SourceSet), print('\n'),
   setof(Action, Object^(
     owl_individual_of(ObjInst, Object),
     getAction_toLocation(Action, Object)), ActionSet),
-  print(ActionSet), print('\n'),
   findall(Pair,
     (member(Action, ActionSet), member(Source, SourceSet),
-    test_projection_for_appearance(Action, Source, ObjInst, Relation, AddedObjInst),
+    test_projection_for_appearance(Action, Source, ObjInst, Relation, AddedObj),
     pairs_keys_values([Pair], [Action], [Source])), PairResSet),
   clean_projection_cache.
 
 % tests wether performing Action with Object as objectActedOn
 % and Location as toLocation results in
 % Location beeing related to ObjOfComp as specified by Relation 
-test_projection_for_appearance(Action, Object, Location, Relation, ObjOfComp) :-
+test_projection_for_appearance(Action, Object, Location, Relation, ObjClass) :-
   append([Object], [], ObjList),
   append([Location], [], ToLocList),
   create_action_inst(Action, ObjList, ToLocList, [], ActInst),
   project_action_effects(ActInst),
-  % check wether new object related to ToLocation is of the same type as ObjOfComp
-  owl_has(Location, Relation, NewObj), owl_has(NewObj, rdf:type, Type),
-  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type),
+  % check wether new object related to ToLocation is of the type ObjClass 
+  owl_has(Location, Relation, NewObj), owl_has(NewObj, rdf:type, ObjClass),
   % clean projection cache to allow another filling of Location 
   clean_projection_cache.
    

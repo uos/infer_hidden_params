@@ -2,7 +2,7 @@
 find_cause(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
 
 % works
-find_cause_of_appearance(drink_world:'DrinkingGlass1', knowrob:'contains', drink_world:'Orange_Juice1', RS).
+find_cause_of_appearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice', RS).
 
 % works
 find_cause_of_appearance(cheese_world:'Gouda1', PRS).
