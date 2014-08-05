@@ -1,5 +1,5 @@
 
-:- module(find_cause,
+:- module(find_cause_of_change,
     [
       find_cause_of_stateChange/5,
       find_cause_of_stateChange/4,
