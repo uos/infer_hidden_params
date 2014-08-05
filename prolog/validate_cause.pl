@@ -1,11 +1,12 @@
 :- module(validate_cause,
     [
       find_action_inst/5,
+      find_latest_action_inst/5,
       object_available/2,
       object_possibly_available/2
     ]).
 
-:- use_module(library('find_cause_of_change')).
+:- use_module(library('comp_temporal')).
 :- use_module(library('semweb/rdfs')).
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs_computable')).
@@ -17,6 +18,7 @@
 
 :- rdf_meta
     find_action_inst(r,r,r,r,?),
+    find_latest_action_inst(r,r,r,r,?),
     object_available(r,?),
     object_possibly_available(r,?).
 
@@ -44,7 +46,12 @@ find_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
     (owl_has(ActionInst, knowrob:'toLocation', FromLoc);
      (owl_has(ActionInst, knowrob:'toLoctaion', FromLocInst), owl_individual_of(FromLocInst, FromLoc)))).
 
-
+find_latest_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActionInst) :-
+  findall(ActInst, find_action_inst(Action, ObjActOnSet, ToLocSet, FromLocSet, ActInst), ActList),
+  member(ActionInst, ActList),
+  owl_has(ActionInst, knowrob:startTime, After),
+  forall(member(Act, ActList), (Act = ActionInst;
+    (owl_has(Act, knowrob:startTime, Pre), comp_after(Pre, After)))).
 
 %% object_available
 %

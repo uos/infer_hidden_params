@@ -52,7 +52,7 @@
         <rdf:type rdf:resource="&knowrob;FillingProcess"/>
         <knowrob:objectActedOn rdf:resource="http://infer_hidden_params/drink_world.owl#TetraPak1"/>
         <knowrob:toLocation rdf:resource="http://infer_hidden_params/drink_world.owl#DrinkingGlass1"/>
-        <knowrob:startTime rdf:resource="http://infer_hidden_params/drink_world.owl#timepoint_1298634633"/>
+        <knowrob:startTime rdf:resource="http://infer_hidden_params/drink_world.owl#timepoint_1298634634"/>
     </owl:NamedIndividual>
 
     <!--
@@ -108,5 +108,8 @@
         <rdf:type rdf:resource="&knowrob;TimePoint"/>
     </owl:NamedIndividual>
 
+    <owl:NamedIndividual rdf:about="http://infer_hidden_params/drink_world.owl#timepoint_1298634634">
+        <rdf:type rdf:resource="&knowrob;TimePoint"/>
+    </owl:NamedIndividual>
 
 </rdf:RDF>

@@ -2,6 +2,7 @@
 % dependencies 
 
 :- register_ros_package(ias_knowledge_base).
+:- register_ros_package(comp_temporal).
 :- register_ros_package(infer_hidden_params).
 
 :- use_module(library('action_effects_ext')).
