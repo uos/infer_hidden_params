@@ -192,7 +192,8 @@ test_projection_for_stateChange(Action, Object, Property, Value) :-
   append([Object], [], ObjList),
   create_action_inst(Action, ObjList, [], [], ActInst),
   project_action_effects(ActInst),
-  owl_has(Object, Property, Value).
+  owl_has(Object, Property, Value),
+  clean_projection_cache.
 
 
 
@@ -231,7 +232,8 @@ test_projection_for_appearance(Action, ObjList, ObjOfComp) :-
   project_action_effects(ActInst),
   % check wether any of the newly created objects is of the same type as ObjOfComp
   owl_has(ActInst, knowrob:'outputsCreated', NewObj), owl_has(NewObj, rdf:type, Type),
-  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type).
+  (Type\='http://www.w3.org/2002/07/owl#NamedIndividual'), owl_has(ObjOfComp, rdf:type, Type),
+  clean_projection_cache.
 
 
 
@@ -306,7 +308,8 @@ test_projection_for_disappearance(Action, Object) :-
   append([Object], [], ObjList),
   create_action_inst(Action, ObjList, [], [], ActInst),
   project_action_effects(ActInst),
-  owl_has(ActInst, knowrob:'inputsDestroyed', Object).
+  owl_has(ActInst, knowrob:'inputsDestroyed', Object),
+  clean_projection_cache.
 
 
 
@@ -341,5 +344,6 @@ test_projection_for_disappearance(Action, Object, Relation, DestructObj) :-
   create_action_inst(Action, ObjList, [], [], ActInst),
   project_action_effects(ActInst),
   owl_has(ActInst, knowrob:'inputsDestroyed', DestructObj),
-  \+ owl_has(Object, Relation, DestructObj).
+  \+ owl_has(Object, Relation, DestructObj),
+  clean_projection_cache.
 
