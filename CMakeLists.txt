@@ -27,5 +27,3 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_boost_directories()
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 
-rosbuild_add_executable(mytest src/test.cpp)
-target_link_libraries(mytest json_prolog)
