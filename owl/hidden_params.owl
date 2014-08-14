@@ -39,9 +39,9 @@
 
     <owl:ObjectProperty rdf:about="&knowrob;hasTexture"/>
 
-    <owl:ObjectProperty rdf:about="&knowrob;ownedBy">
+    <owl:ObjectProperty rdf:about="&knowrob;facilityIntendedForPersonType">
         <rdfs:range rdf:resource="&knowrob;EmbodiedAgent"/>
-        <rdfs:domain rdf:resource="&knowrob;SpatialThing"/>
+        <rdfs:domain rdf:resource="&knowrob;Place"/>
     </owl:ObjectProperty>
 
     <!-- betweenContainers for doors (containsPortals) -->
@@ -110,22 +110,88 @@
     <owl:Class rdf:about="&knowrob;OpeningADoor"> 
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;performedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
                 <owl:someValuesFrom rdf:resource="&knowrob;Door"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-    </owl:Class>
-
-    <owl:Class rdf:about="&knowrob;EnteringARoom">
-        <rdfs:subClassOf rdf:resource="&knowrob;Walking-Generic"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&knowrob;subAction"/>
-                <owl:hasValue rdf:resource="&knowrob;OpeningADoor"/>
+                <owl:onProperty rdf:resource="&knowrob;toLocation"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;RoomInAConstruction"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
 
+    <owl:Class rdf:about="&knowrob;ClosingADoor"> 
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;performedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Door"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;FromLocation"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;RoomInAConstruction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;OpeningALockedDoor"> 
+        <rdfs:subClassOf rdf:resource="&knowrob;OpeningSomething"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;performedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Door"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;toLocation"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;RoomInAConstruction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <owl:Class rdf:about="&knowrob;LockingADoor"> 
+        <rdfs:subClassOf rdf:resource="&knowrob;ClosingSomething"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;performedBy"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;objectActedOn"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;Door"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&knowrob;FromLocation"/>
+                <owl:someValuesFrom rdf:resource="&knowrob;RoomInAConstruction"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -496,11 +562,15 @@
     <owl:Class rdf:about="&knowrob;OfficeRoom">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&knowrob;ownedBy"/>
+                <owl:onProperty rdf:resource="&knowrob;facilityIntendedForPersonType"/>
                 <owl:someValuesFrom rdf:resource="&knowrob;Person"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
+
+    <owl:NamedIndividual rdf:about="&knowrob;ObjectStateLocked">
+        <rdf:type rdf:resource="&knowrob;ContainerState"/>
+    </owl:NamedIndividual>
 
     <!-- Portals have an intendedCovering and are connected to rooms via betweenContainers
          rooms are connectedTo a intendedCovering (Door) -->

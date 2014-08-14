@@ -1,5 +1,10 @@
 % works
-find_cause(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
+find_cause_of_stateChange(door_map:'Door2', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
+
+%works
+find_cause_of_stateChange(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateLocked', knowrob:'ObjectStateOpen', RS).
+rdf_assert(door_map:'Door1', knowrob:stateOfObject, knowrob:'ObjectStateOpen').
+find_cause_of_stateChange(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateOpen', knowrob:'ObjectStateLocked', RS).
 
 % works
 find_cause_of_appearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice', RS).

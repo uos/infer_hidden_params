@@ -63,7 +63,7 @@
     <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#OfficeRoom1">
         <rdf:type rdf:resource="&knowrob;OfficeRoom"/>
         <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
-        <knowrob:ownedBy rdf:resource="http://infer_hidden_params/door_map.owl#Martin"/>
+        <knowrob:facilityIntendedForPersonType rdf:resource="http://infer_hidden_params/door_map.owl#Martin"/>
         <knowrob:containsPortal rdf:resource="http://infer_hidden_params/door_map.owl#Portal1"/>
     <!--    <knowrob:connectedTo rdf:resource="http://infer_hidden_params/door_map.owl#Door1"/> -->
     </owl:NamedIndividual>
@@ -89,7 +89,7 @@
     <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Door1">
         <rdf:type rdf:resource="&knowrob;Door"/>
         <knowrob:describedInMap rdf:resource="http://infer_hidden_params/door_map.owl#SemanticEnvironmentMap0"/>
-        <knowrob:stateOfObject rdf:resource="&knowrob;ObjectStateClosed"/>
+        <knowrob:stateOfObject rdf:resource="&knowrob;ObjectStateLocked"/>
     </owl:NamedIndividual>
 
     <owl:NamedIndividual rdf:about="http://infer_hidden_params/door_map.owl#Door2">
