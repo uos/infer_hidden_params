@@ -248,10 +248,6 @@
         </rdfs:subClassOf>
     </owl:Class>
 
-    <owl:Class rdf:about="&knowrob;DrinkingGlass">
-        <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
-    </owl:Class>
-
     <owl:Class rdf:about="&knowrob;TetraPak">
         <rdfs:subClassOf rdf:resource="&knowrob;PackagingContainerProduct"/>
         <rdfs:subClassOf rdf:resource="&knowrob;DrinkingVessel"/>
