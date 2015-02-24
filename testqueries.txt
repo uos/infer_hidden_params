@@ -1,25 +1,18 @@
-% works
 find_cause_of_stateChange(door_map:'Door2', knowrob:'stateOfObject', knowrob:'ObjectStateClosed', knowrob:'ObjectStateOpen', RS).
 
-%works
 find_cause_of_stateChange(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateLocked', knowrob:'ObjectStateOpen', RS).
 rdf_assert(door_map:'Door1', knowrob:stateOfObject, knowrob:'ObjectStateOpen').
 find_cause_of_stateChange(door_map:'Door1', knowrob:'stateOfObject', knowrob:'ObjectStateOpen', knowrob:'ObjectStateLocked', RS).
 
-% works
 find_cause_of_appearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice', RS).
 
-% works
 find_cause_of_appearance(cheese_world:'Gouda1', PRS).
-% works
+
 rdf_instance_from_class(knowrob:'EggShell',A).
 find_cause_of_appearance(knowrob:'EggShell_vUXiHMJy', PRS).
 
-% works 
 rdf_instance_from_class(knowrob:'Egg-Chickens', A).
 find_cause_of_disappearance(knowrob:'Egg-Chickens_vUXiHMJy', RS).
 
-% works 
 project_action_effects(drink_world:'FillingProcess1').
 find_cause_of_dissappearance(drink_world:'DrinkingGlass1', knowrob:'contains', knowrob:'Orange_Juice_vUXiHMJy', RS).
-
